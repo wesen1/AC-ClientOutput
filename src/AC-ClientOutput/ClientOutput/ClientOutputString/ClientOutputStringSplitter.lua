@@ -101,7 +101,6 @@ function ClientOutputStringSplitter:splitStringIntoRows(_returnAsClientOutputStr
   self.remainingTabGroups = self.parentClientOutputString:splitIntoTabGroups()
   self.currentColorString = ""
 
-  -- TODO: New line indent must be taken into account in width calculation
   local newLineIndent = self.parentClientOutputString:getNewLineIndent()
 
   local rowStrings = {}

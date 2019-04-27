@@ -48,7 +48,6 @@ ClientOutputTable.groupConfigurations = nil
 --
 function ClientOutputTable:__construct(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
 
-  -- TODO: Use remaining pixels too when possible
   local instance = BaseClientOutput(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
   setmetatable(instance, {__index = ClientOutputTable})
 
