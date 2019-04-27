@@ -64,7 +64,10 @@ ClientOutputFactory.defaultConfiguration = {
 -- @treturn ClientOutputFactory The ClientOutputFactory instance
 --
 function ClientOutputFactory:__construct()
+
   local instance = setmetatable({}, {__index = ClientOutputFactory})
+  instance:changeFontConfig("FontDefault")
+
   return instance
 end
 
@@ -97,8 +100,7 @@ end
 function ClientOutputFactory:configure(_configuration)
 
   if (_configuration["fontConfigFileName"] ~= nil) then
-    self.symbolWidthLoader = SymbolWidthLoader(_configuration["fontConfigFileName"], true)
-    self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
+    self:changeFontConfig(_configuration["fontConfigFileName"])
   end
 
   if (_configuration["maximumLineWidth"] ~= nil) then
@@ -164,6 +166,19 @@ function ClientOutputFactory:getClientOutputTable(_table, _configuration)
 
   return clientOutputTable
 
+end
+
+
+-- Private Methods
+
+---
+-- Reinitializes the symbol width loader and the tab stop calculator to use a new font config.
+--
+-- @tparam string _fontConfigFileName The font config file name
+--
+function ClientOutputFactory:changeFontConfig(_fontConfigFileName)
+  self.symbolWidthLoader = SymbolWidthLoader(_fontConfigFileName)
+  self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
 end
 
 
