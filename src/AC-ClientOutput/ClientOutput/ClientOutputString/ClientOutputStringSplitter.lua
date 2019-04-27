@@ -333,7 +333,7 @@ function ClientOutputStringSplitter:removeCurrentRowFromRemainingTabGroups()
 
   -- Adjust the list of remaining tab groups
   if (self.currentTabGroupNumber > 1) then
-    self.remainingTabGroups = TableUtils:slice(self.remainingTabGroups, self.currentTabGroupNumber)
+    self.remainingTabGroups = TableUtils.slice(self.remainingTabGroups, self.currentTabGroupNumber)
   end
 
 end
