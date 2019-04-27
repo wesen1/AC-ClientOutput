@@ -109,7 +109,7 @@ end
 --
 function ClientOutputTable:parse(_table)
 
-  local ClientOutputFactory = require("AC-ClientOutput/ClientOutput/ClientOutputFactory")
+  local ClientOutputFactory = require("AC-ClientOutput/ClientOutputFactory")
 
   self.rows = {}
   for y, row in ipairs(_table) do

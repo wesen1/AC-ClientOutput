@@ -96,7 +96,7 @@ getmetatable(ClientOutputStringSplitter).__call = ClientOutputStringSplitter.__c
 --
 function ClientOutputStringSplitter:splitStringIntoRows(_returnAsClientOutputStrings)
 
-  local ClientOutputFactory = require("AC-ClientOutput/ClientOutput/ClientOutputFactory")
+  local ClientOutputFactory = require("AC-ClientOutput/ClientOutputFactory")
 
   self.remainingTabGroups = self.parentClientOutputString:splitIntoTabGroups()
   self.currentColorString = ""
