@@ -5,8 +5,8 @@
 -- @license MIT
 --
 
-local StringUtils = require("Util/StringUtils")
-local TableUtils = require("Util/TableUtils")
+local StringUtils = require("AC-ClientOutput/Util/StringUtils")
+local TableUtils = require("AC-ClientOutput/Util/TableUtils")
 
 ---
 -- Provides methods to split a ClientOutputString into string groups.
@@ -96,7 +96,7 @@ getmetatable(ClientOutputStringSplitter).__call = ClientOutputStringSplitter.__c
 --
 function ClientOutputStringSplitter:splitStringIntoRows(_returnAsClientOutputStrings)
 
-  local ClientOutputFactory = require("Output/ClientOutput/ClientOutputFactory")
+  local ClientOutputFactory = require("AC-ClientOutput/ClientOutput/ClientOutputFactory")
 
   self.remainingTabGroups = self.parentClientOutputString:splitIntoTabGroups()
   self.currentColorString = ""

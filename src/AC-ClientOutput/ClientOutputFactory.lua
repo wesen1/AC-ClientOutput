@@ -5,10 +5,10 @@
 -- @license MIT
 --
 
-local ClientOutputString = require("Output/ClientOutput/ClientOutputString/ClientOutputString")
-local ClientOutputTable = require("Output/ClientOutput/ClientOutputTable/ClientOutputTable")
-local SymbolWidthLoader = require("Output/ClientOutput/Util/SymbolWidthLoader")
-local TabStopCalculator = require("Output/ClientOutput/Util/TabStopCalculator")
+local ClientOutputString = require("AC-ClientOutput/ClientOutput/ClientOutputString/ClientOutputString")
+local ClientOutputTable = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTable")
+local SymbolWidthLoader = require("AC-ClientOutput/ClientOutput/Util/SymbolWidthLoader")
+local TabStopCalculator = require("AC-ClientOutput/ClientOutput/Util/TabStopCalculator")
 
 ---
 -- Provides static methods to configure a font config and to create ClientOutputString and ClientOutputTable instances.

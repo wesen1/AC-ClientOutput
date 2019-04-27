@@ -4,8 +4,8 @@
 -- @release 0.1
 -- @license MIT
 
-local BaseClientOutput = require("Output/ClientOutput/BaseClientOutput")
-local ClientOutputTableRenderer = require("Output/ClientOutput/ClientOutputTable/ClientOutputTableRenderer")
+local BaseClientOutput = require("AC-ClientOutput/ClientOutput/BaseClientOutput")
+local ClientOutputTableRenderer = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableRenderer")
 
 ---
 -- Represents a output table for the console in the players games.
@@ -109,7 +109,7 @@ end
 --
 function ClientOutputTable:parse(_table)
 
-  local ClientOutputFactory = require("Output/ClientOutput/ClientOutputFactory")
+  local ClientOutputFactory = require("AC-ClientOutput/ClientOutput/ClientOutputFactory")
 
   self.rows = {}
   for y, row in ipairs(_table) do

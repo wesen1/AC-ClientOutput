@@ -5,9 +5,9 @@
 -- @license MIT
 --
 
-local BaseClientOutput = require("Output/ClientOutput/BaseClientOutput")
-local ClientOutputStringSplitter = require("Output/ClientOutput/ClientOutputString/ClientOutputStringSplitter")
-local StringUtils = require("Util/StringUtils")
+local BaseClientOutput = require("AC-ClientOutput/ClientOutput/BaseClientOutput")
+local ClientOutputStringSplitter = require("AC-ClientOutput/ClientOutput/ClientOutputString/ClientOutputStringSplitter")
+local StringUtils = require("AC-ClientOutput/Util/StringUtils")
 
 ---
 -- Represents a output string for the console in the players games.

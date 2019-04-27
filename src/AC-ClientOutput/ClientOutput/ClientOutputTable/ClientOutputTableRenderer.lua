@@ -267,7 +267,7 @@ end
 --
 function ClientOutputTableRenderer:generateRowStrings(_outputTable, _returnAsClientOutputStrings)
 
-  local ClientOutputFactory = require("Output/ClientOutput/ClientOutputFactory")
+  local ClientOutputFactory = require("AC-ClientOutput/ClientOutput/ClientOutputFactory")
   local tabStopCalculator = self.parentClientOutputTable:getTabStopCalculator()
 
   local numberOfUsedTabs, rowWidth
