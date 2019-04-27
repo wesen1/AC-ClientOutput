@@ -160,7 +160,7 @@ function ClientOutputTableRenderer:mergeSubRows(_outputTable)
   local outputTable = {}
   local mainTableInsertIndex = 1
 
-  for y, tableRow in ipairs(_outputTable) do
+  for _, tableRow in ipairs(_outputTable) do
 
     outputTable[mainTableInsertIndex] = {}
 
@@ -172,7 +172,7 @@ function ClientOutputTableRenderer:mergeSubRows(_outputTable)
         local mainTableInsertIndexForTable = mainTableInsertIndex
         local isFirstSubRow = true
 
-        for subY, subRow in ipairs(tableField) do
+        for _, subRow in ipairs(tableField) do
 
           if (isFirstSubRow) then
             isFirstSubRow = false
@@ -229,7 +229,7 @@ function ClientOutputTableRenderer:addTabsToFields(_outputTable, _returnAsClient
       local numberOfTabsForColumn = self.numbersOfTabsPerColumn[x]
       for y, tableRow in ipairs(outputTable) do
 
-        local field = outputTable[y][x]
+        local field = tableRow[x]
 
         if (x < numberOfColumns or _returnAsClientOutputStrings) then
 

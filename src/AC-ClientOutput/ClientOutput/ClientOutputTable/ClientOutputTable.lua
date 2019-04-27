@@ -203,7 +203,7 @@ function ClientOutputTable:getNumberOfRequiredTabsForColumn(_columnNumber)
   end
 
   local numberOfRequiredTabs = 0
-  for y, row in ipairs(self.rows) do
+  for _, row in ipairs(self.rows) do
 
     local numberOfRequiredTabsForField = row[_columnNumber]:getNumberOfRequiredTabs()
     if (numberOfRequiredTabsForField > numberOfRequiredTabs) then
@@ -230,7 +230,7 @@ function ClientOutputTable:getMinimumNumberOfRequiredTabsForColumn(_columnNumber
   end
 
   local minimumNumberOfRequiredTabs = 0
-  for y, row in ipairs(self.rows) do
+  for _, row in ipairs(self.rows) do
 
     local minimumNumberOfRequiredTabsForField = row[_columnNumber]:getMinimumNumberOfRequiredTabs()
     if (minimumNumberOfRequiredTabsForField > minimumNumberOfRequiredTabs) then
