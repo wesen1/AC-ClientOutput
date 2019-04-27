@@ -10,7 +10,7 @@
 --
 -- @type StringUtils
 --
-local StringUtils = {};
+local StringUtils = {}
 
 
 -- Public Methods
@@ -27,7 +27,7 @@ local StringUtils = {};
 --
 -- @treturn string[] The splits
 --
-function StringUtils:split(_text, _delimiter, _keepEmptyTextParts)
+function StringUtils.split(_text, _delimiter, _keepEmptyTextParts)
 
   if (_delimiter == "") then
     return StringUtils.splitIntoCharacters(_text)
@@ -35,34 +35,34 @@ function StringUtils:split(_text, _delimiter, _keepEmptyTextParts)
   else
     -- Split the string into words with the delimiter
 
-    local text = _text;
-    local words = {};
+    local text = _text
+    local words = {}
 
-    local stringPosition = 1;
+    local stringPosition = 1
     while (true) do
 
       local delimiterStartPosition, delimiterEndPosition = text:find(_delimiter, stringPosition)
 
       -- Get the next word
-      local word;
+      local word
       if (delimiterStartPosition) then
-        word = text:sub(stringPosition, delimiterStartPosition - 1);
-        stringPosition = delimiterEndPosition + 1;
+        word = text:sub(stringPosition, delimiterStartPosition - 1)
+        stringPosition = delimiterEndPosition + 1
       else
-        word = text:sub(stringPosition);
+        word = text:sub(stringPosition)
       end
 
       if (_keepEmptyTextParts or word ~= "") then
-        table.insert(words, word);
+        table.insert(words, word)
       end
 
       if (not delimiterStartPosition) then
-        break;
+        break
       end
 
     end
 
-    return words;
+    return words
 
   end
 

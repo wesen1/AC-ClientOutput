@@ -161,7 +161,7 @@ end
 -- @treturn string[] The tab groups
 --
 function ClientOutputString:splitIntoTabGroups()
-  return StringUtils:split(self.string, "\t", true)
+  return StringUtils.split(self.string, "\t", true)
 end
 
 
@@ -208,7 +208,7 @@ function ClientOutputString:calculateWidth()
 
     if (i < numberOfTabGroups) then
       -- Jump to the next tab stop
-      totalWidth = self.tabStopCalculator:getNextTabStopPosition(totalWidth);
+      totalWidth = self.tabStopCalculator:getNextTabStopPosition(totalWidth)
     end
 
   end

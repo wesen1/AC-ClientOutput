@@ -1,6 +1,6 @@
 ---
 -- @author wesen
--- @copyright 2018 wesen <wesen-ac@web.de>
+-- @copyright 2018-2019 wesen <wesen-ac@web.de>
 -- @release 0.1
 -- @license MIT
 --
@@ -10,7 +10,7 @@
 --
 -- @type TableUtils
 --
-local TableUtils = {};
+local TableUtils = {}
 
 
 -- Public Methods
@@ -24,34 +24,34 @@ local TableUtils = {};
 --
 -- @treturn table The partial table
 --
-function TableUtils:slice(_table, _startIndex, _endIndex)
+function TableUtils.slice(_table, _startIndex, _endIndex)
 
-  local length = #_table;
+  local length = #_table
 
   -- Check and adjust start index
   if (tonumber(_startIndex) == nil or _startIndex < 1) then
-    _startIndex = 1;
+    _startIndex = 1
   elseif (_startIndex > length) then
-    return {};
+    return {}
   end
 
   -- Check and adjust end index
   if (tonumber(_endIndex) == nil or _endIndex > length) then
-    _endIndex = length;
+    _endIndex = length
 
   elseif (_endIndex < 0) then
     -- If the end index is smaller than zero subtract that number from the table length
-    _endIndex = length + _endIndex;
+    _endIndex = length + _endIndex
 
   end
 
   -- Create the result table
-  local result = {};
+  local result = {}
   for index = _startIndex, _endIndex, 1 do
-    table.insert(result, _table[index]);
+    table.insert(result, _table[index])
   end
 
-  return result;
+  return result
 
 end
 
@@ -76,4 +76,4 @@ function TableUtils.tableHasValue(_table, _value)
 end
 
 
-return TableUtils;
+return TableUtils
