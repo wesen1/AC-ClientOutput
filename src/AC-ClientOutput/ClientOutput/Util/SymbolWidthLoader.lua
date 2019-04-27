@@ -6,7 +6,7 @@
 --
 
 ---
--- Handles loading of symbol widths from a font config file
+-- Handles loading of symbol widths from one of the font tables
 --
 -- @type SymbolWidthLoader
 --
@@ -14,46 +14,24 @@ local SymbolWidthLoader = setmetatable({}, {})
 
 
 ---
--- The name of the font config file
---
--- @tfield string fontConfigFileName
---
-SymbolWidthLoader.fontConfigFileName = nil
-
----
 -- The font pixel widths in the format {[character] = width}
--- This attribute will only be set when the instance is created with the _hasFontConfigCache option
 --
--- @tfield int[] cachedFontConfig
+-- @tfield int[] fontConfig
 --
-SymbolWidthLoader.cachedFontConfig = nil
+SymbolWidthLoader.fontConfig = nil
 
 
 ---
 -- SymbolWidthLoader constructor.
 --
 -- @tparam string _fontConfigFileName The font config file name
--- @tparam bool _hasFontConfigCache If true the font config file will be loaded into a class attribute
 --
 -- @treturn SymbolWidthLoader The SymbolWidthLoader instance
 --
-function SymbolWidthLoader:__construct(_fontConfigFileName, _hasFontConfigCache)
+function SymbolWidthLoader:__construct(_fontConfigFileName)
 
   local instance = setmetatable({}, {__index = SymbolWidthLoader})
-
-  instance.fontConfigFileName = _fontConfigFileName
-
-  if (_hasFontConfigCache) then
-
-    -- TODO: Load font config as lua table
-
-    -- Load the font config into the cachedFontConfig attribute
-    instance.cachedFontConfig = {}
-    for index, width in pairs(cfg.totable(_fontConfigFileName)) do
-      instance.cachedFontConfig[index] = tonumber(width)
-    end
-
-  end
+  instance.fontConfig = require("AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName)
 
   return instance
 
@@ -73,58 +51,12 @@ getmetatable(SymbolWidthLoader).__call = SymbolWidthLoader.__construct
 --
 function SymbolWidthLoader:getCharacterWidth(_character)
 
-  -- Get the character identifier
-  local character = _character
-  if (character == " ") then
-    character = "whitespace"
-  elseif (character == "\t") then
-    character = "tab"
-  end
-
-  if (self.cachedFontConfig) then
-    return self:getCharacterWidthFromCachedFontConfig(character)
+  local width = self.fontConfig[_character]
+  if (width) then
+    return width
   else
-    return self:getCharacterWidthFromConfigFile(character)
+    return self.fontConfig["default"]
   end
-
-end
-
-
--- Private Methods
-
----
--- Loads and returns the character width in pixels from the cached font config.
---
--- @tparam string _character The character
---
--- @treturn int The character width
---
-function SymbolWidthLoader:getCharacterWidthFromCachedFontConfig(_character)
-
-  local width = self.cachedFontConfig[_character]
-  if (not width) then
-    width = self.cachedFontConfig["default"]
-  end
-
-  return width
-
-end
-
----
--- Loads and returns the character width in pixels from the config file.
---
--- @tparam string _character The character
---
--- @treturn int The character width
---
-function SymbolWidthLoader:getCharacterWidthFromConfigFile(_character)
-
-  local width = cfg.getvalue(self.fontConfigFileName, _character)
-  if (not width) then
-    width = cfg.getvalue(self.fontConfigFileName, "default")
-  end
-
-  return tonumber(width)
 
 end
 
