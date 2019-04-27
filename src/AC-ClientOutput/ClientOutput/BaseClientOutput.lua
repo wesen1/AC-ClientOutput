@@ -186,6 +186,8 @@ end
 ---
 -- Parses a target into this client output.
 --
+-- @tparam mixed _target The target
+--
 function BaseClientOutput:parse(_target)
 end
 

@@ -126,11 +126,9 @@ end
 ---
 -- Replaces sub tables by the row output strings of the sub table.
 --
--- @tparam bool _splitStringsAtWhitespace Whether to split strings at whitespaces
---
 -- @treturn table The table with converted sub tables
 --
-function ClientOutputTableRenderer:convertSubTablesToRows(_splitStringsAtWhitespace)
+function ClientOutputTableRenderer:convertSubTablesToRows()
 
   local outputTable = {}
 
