@@ -47,7 +47,7 @@ ClientOutputStringSplitter.currentColorString = nil
 --
 -- The table is in the format { { [tabGroupNumber] = int, [characterNumber] = int }, ... }
 --
--- @tfield table[] whitespacePositions
+-- @tfield table[] lineSplitCharacterPositions
 --
 ClientOutputStringSplitter.lineSplitCharacterPositions = nil
 
