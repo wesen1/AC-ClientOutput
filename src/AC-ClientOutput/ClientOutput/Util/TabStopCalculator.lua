@@ -61,14 +61,7 @@ end
 -- @treturn int The next tab stop number
 --
 function TabStopCalculator:getNextTabStopNumber(_textPixelPosition)
-
-  local numberOfPassedTabStops = self:getNumberOfPassedTabStops(_textPixelPosition)
-  if (_textPixelPosition > 0 and _textPixelPosition % self.tabWidth == 0) then
-    return numberOfPassedTabStops
-  else
-    return numberOfPassedTabStops + 1
-  end
-
+  return self:getNumberOfPassedTabStops(_textPixelPosition) + 1
 end
 
 ---

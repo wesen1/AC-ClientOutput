@@ -4,14 +4,7 @@
 
 return {
   ["default"] = 32,
-
-  -- 1x "\t" seems to be as wide as 10x " " + 1
-  ["	"] = 311,
-
-  -- The width of one white space was determined by comparing the output of several character combinations:
-  -- 10x " " is exactly as wide as 10x "J", therefore it has the same width as that symbol
   [" "] = 31,
-
   ["!"] = 23,
   ["\""] = 38,
   ["#"] = 47,
@@ -72,6 +65,7 @@ return {
   ["Z"] = 43,
   ["["] = 29,
   ["\\"] = 32,
+  ["\t"] = 320,
   ["]"] = 29,
   ["^"] = 46,
   ["_"] = 37,

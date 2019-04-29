@@ -197,19 +197,20 @@ end
 --
 function ClientOutputString:calculateWidth()
 
-  local tabGroups = self:splitIntoTabGroups()
-  local numberOfTabGroups = #tabGroups
-
   local totalWidth = 0
-  for i, tabGroup in ipairs(tabGroups) do
+  local isFirstTabGroup = true
 
-    -- Calculate the text part width
-    totalWidth = totalWidth + self:getStringWidth(tabGroup)
+  for i, tabGroup in ipairs(self:splitIntoTabGroups()) do
 
-    if (i < numberOfTabGroups) then
+    if (isFirstTabGroup) then
+      isFirstTabGroup = false
+    else
       -- Jump to the next tab stop
       totalWidth = self.tabStopCalculator:getNextTabStopPosition(totalWidth)
     end
+
+    -- Add the text part width
+    totalWidth = totalWidth + self:getStringWidth(tabGroup)
 
   end
 
@@ -229,9 +230,27 @@ function ClientOutputString:getStringWidth(_string)
   -- Remove "\f*" strings (colors) because these characters will not be printed to the screen
   local targetString = _string:gsub("(%\f[A-Za-z0-9])", "")
 
-  local width = 0
+  local width
+
+  -- In "src/rendertext.cpp" the width calculation is done as follows:
+  --   1. The Initial width is the first character of the string
+  --   2. Every character after that is added to the total width by adding its width + 1
+  --
+  -- However the whitespace width is added as "+ default character width" while the +1 for the pixel between
+  -- the characters is omitted.
+  -- This leads to a bug in the calculation when the first character of a string is a whitespace because
+  -- that one is not supposed to have the +1 pixel added.
+  --
+  -- To replicate the same behaviour the initial width is set here accordingly.
+  --
+  if (targetString[1] == " ") then
+    width = 0
+  else
+    width = -1
+  end
+
   for character in targetString:gmatch(".") do
-    width = width + self.symbolWidthLoader:getCharacterWidth(character)
+    width = width + self.symbolWidthLoader:getCharacterWidth(character) + 1
   end
 
   return width

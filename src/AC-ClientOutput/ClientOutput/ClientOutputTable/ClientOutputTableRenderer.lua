@@ -232,9 +232,9 @@ function ClientOutputTableRenderer:addTabsToFields(_outputTable, _returnAsClient
         if (x < numberOfColumns or _returnAsClientOutputStrings) then
 
           if (field == nil) then
-            field = string.rep("\t", numberOfTabsForColumn - 1)
+            field = string.rep("\t", numberOfTabsForColumn)
           else
-            field = field:padWithTabs(numberOfTabsForColumn - 1)
+            field = field:padWithTabs(numberOfTabsForColumn)
           end
 
           outputTable[y][x] = field
@@ -283,7 +283,7 @@ function ClientOutputTableRenderer:generateRowStrings(_outputTable, _returnAsCli
   for y, row in ipairs(_outputTable) do
 
     -- Build the row output strings by joining the fields together with "\t"s
-    local rowString = table.concat(row, "\t")
+    local rowString = table.concat(row, "")
 
     if (_returnAsClientOutputStrings) then
       rowString = ClientOutputFactory.getInstance():getClientOutputString(rowString)

@@ -150,8 +150,16 @@ function ClientOutputStringSplitter:calculateNextRowEndPosition()
   local symbolWidthLoader = self.parentClientOutputString:getSymbolWidthLoader()
   local tabStopCalculator = self.parentClientOutputString:getTabStopCalculator()
 
-  self.currentRowWidth = 0
+  self.currentRowWidth = -1
+  local isFirstTabGroup = true
   for tabGroupNumber, tabGroup in ipairs(self.remainingTabGroups) do
+
+    if (isFirstTabGroup) then
+      isFirstTabGroup = false
+    else
+      -- Jump to the next tab stop
+      self.currentRowWidth = tabStopCalculator:getNextTabStopPosition(self.currentRowWidth)
+    end
 
     self.currentTabGroupNumber = tabGroupNumber
     self.currentCharacterNumber = 1
@@ -189,11 +197,16 @@ function ClientOutputStringSplitter:calculateNextRowEndPosition()
 
         else
 
+          local isCurrentCharacterWhiteSpace = (character == " ")
+          if (self.currentRowWidth == -1 and isCurrentCharacterWhiteSpace) then
+            self.currentRowWidth = 0
+          end
+
           -- Get the width of the current character
           local currentCharacterWidth = symbolWidthLoader:getCharacterWidth(character)
 
           -- Check if the new total width exceeds the maximum allowed width
-          if (self.currentRowWidth + currentCharacterWidth > maximumLineWidth) then
+          if (self.currentRowWidth + currentCharacterWidth + 1 > maximumLineWidth) then
             return
           else
 
@@ -203,12 +216,12 @@ function ClientOutputStringSplitter:calculateNextRowEndPosition()
                   tabGroupNumber = self.currentTabGroupNumber,
                   characterNumber = self.currentCharacterNumber,
                   lineWidthAtPosition = self.currentRowWidth,
-                  isWhiteSpace = (character == " ")
+                  isWhiteSpace = isCurrentCharacterWhiteSpace
               })
             end
 
             self.currentCharacterNumber = self.currentCharacterNumber + 1
-            self.currentRowWidth = self.currentRowWidth + currentCharacterWidth
+            self.currentRowWidth = self.currentRowWidth + currentCharacterWidth + 1
 
           end
 
@@ -217,9 +230,6 @@ function ClientOutputStringSplitter:calculateNextRowEndPosition()
       end
 
     end
-
-    -- Jump to the next tab stop
-    self.currentRowWidth = tabStopCalculator:getNextTabStopPosition(self.currentRowWidth)
 
   end
 
@@ -256,9 +266,6 @@ function ClientOutputStringSplitter:getNextRowString()
   if (self.currentCharacterNumber > 0) then
     rowString = rowString .. self.remainingTabGroups[self.currentTabGroupNumber]:sub(1, self.currentCharacterNumber)
   end
-
-  -- Remove trailing whitespace and trailing tabs
-  rowString = rowString:gsub("[ \t]*$", "")
 
   return rowString
 
