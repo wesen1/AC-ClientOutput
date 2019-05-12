@@ -34,7 +34,7 @@ RowBuilder.tabStopCalculator = nil
 ---
 -- The StringWidthCalculator
 --
--- @tfield StringWidthCalculator
+-- @tfield StringWidthCalculator stringWidthCalculator
 --
 RowBuilder.stringWidthCalculator = nil
 
@@ -253,7 +253,7 @@ end
 -- Returns tabs to right pad the current row string until it reaches a specific tab stop.
 --
 -- @tparam int _rowEndPosition The row end position inside the target string
--- @tparam int _targetTabStop The target tab stop
+-- @tparam int _padTabNumber The tab number until which the row shall be padded with tabs (optional)
 --
 -- @treturn string The tabs to pad the row string
 --
