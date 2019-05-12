@@ -166,7 +166,7 @@ end
 ---
 -- Changes the maximum line width to a new value.
 --
--- @tparam int The maximum line width
+-- @tparam int _maximumLineWidth The maximum line width
 --
 function BaseClientOutput:changeMaximumLineWidth(_maximumLineWidth)
   self.maximumLineWidth = _maximumLineWidth
@@ -176,7 +176,7 @@ end
 ---
 -- Changes the maximum number of tabs to a new value.
 --
--- @tparam int The maximum number of tabs
+-- @tparam int _maximumNumberOfTabs The maximum number of tabs
 --
 function BaseClientOutput:changeMaximumNumberOfTabs(_maximumNumberOfTabs)
   self.maximumNumberOfTabs = _maximumNumberOfTabs

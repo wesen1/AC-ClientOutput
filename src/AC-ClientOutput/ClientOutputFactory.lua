@@ -52,10 +52,7 @@ ClientOutputFactory.maximumLineWidth = 3900
 --
 -- @tfield mixed[] defaultConfiguration
 --
-ClientOutputFactory.defaultConfiguration = {
-  newLineIndent = "",
-  lineSplitCharacters = " "
-}
+ClientOutputFactory.defaultConfiguration = nil
 
 
 -- Metamethods
@@ -69,6 +66,10 @@ ClientOutputFactory.defaultConfiguration = {
 function ClientOutputFactory:__construct()
   local instance = setmetatable({}, {__index = ClientOutputFactory})
   instance:changeFontConfig("FontDefault")
+  instance.defaultConfiguration = {
+    newLineIndent = "",
+    lineSplitCharacters = " "
+  }
 
   return instance
 end
