@@ -11,7 +11,10 @@
 -- Converts a AssaultCube font config to a file that returns a lua table that contains
 -- the width of each character.
 -- You can find the font configs in the config directory of your AssaultCube installation,
--- they are named "font_<font name>.cfg""
+-- they are named "font_<font name>.cfg"
+--
+-- The tab width can be found in "src/protos.h" as "PIXELTAB" and the default width usage can be found
+-- in "src/rendertext.cpp"
 --
 
 -- Functions
@@ -38,11 +41,11 @@ function parseFontConfig(_fontConfigFilePath)
       parsedFontConfig["fontName"] = fontName
       parsedFontConfig["defaultWidth"] = defaultWidth
 
-      -- Guess that a whitespace's width equals the default width
-      parsedFontConfig["symbolWidths"][" "] = defaultWidth
+      -- A whitespace's width equals the default width - 1 (see rendertext.cpp)
+      parsedFontConfig["symbolWidths"][" "] = defaultWidth -1
 
-      -- Guess that a tab's width equals the default width * 10
-      parsedFontConfig["symbolWidths"]["\t"] = defaultWidth * 10
+      -- A tab's width equals the default width * 10 (see protos.h)
+      parsedFontConfig["symbolWidths"]["\\t"] = defaultWidth * 10
 
     elseif (line:find("fontchar")) then
 
@@ -91,26 +94,15 @@ function generateLuaFileFromParsedFontConfig(_parsedFontConfig, _outputFilePath)
   outputFile:write("  [\"default\"] = " .. _parsedFontConfig["defaultWidth"] .. ",\n")
 
   local isFirstSymbol = true
-  local needsTodoMessage = false
   for _, symbol in ipairs(symbols) do
 
     if (isFirstSymbol) then
       isFirstSymbol = false
     else
-
-      outputFile:write(",")
-      if (needsTodoMessage) then
-        outputFile:write(" --TODO: Check if this value is correct")
-        needsTodoMessage = false
-      end
-      outputFile:write("\n")
+      outputFile:write(",\n")
     end
 
     local width = _parsedFontConfig["symbolWidths"][symbol]
-
-    if (symbol == " " or symbol == "\t") then
-      needsTodoMessage = true
-    end
 
     if (symbol == "\"" or symbol == "\\") then
       -- The symbol is a special character that needs to be escaped with a backslash

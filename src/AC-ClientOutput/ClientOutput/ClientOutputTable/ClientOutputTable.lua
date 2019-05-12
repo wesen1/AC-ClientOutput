@@ -125,7 +125,7 @@ function ClientOutputTable:parse(_table)
         if (type(field) == "table") then
           self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(field)
         else
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(field)
+          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(tostring(field))
         end
 
         self.rows[y][x]:configure(self:getConfigurationForField(y, x))
@@ -179,12 +179,14 @@ function ClientOutputTable:getOutputRows()
 end
 
 ---
--- Returns the output rows to display this client output's contents wrapped in ClientOutputString's.
+-- Returns the output rows padded with tabs until a specified tab number.
 --
--- @treturn ClientOutputString[] The output rows
+-- @tparam int _tabNumber The tab number
 --
-function ClientOutputTable:getOutputRowsAsClientOutputStrings()
-  return self.renderer:getOutputRows(true)
+-- @treturn string[] The output rows padded with tabs
+--
+function ClientOutputTable:getOutputRowsPaddedWithTabs(_tabNumber)
+  return self.renderer:getOutputRows(_tabNumber)
 end
 
 

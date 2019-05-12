@@ -216,11 +216,13 @@ function BaseClientOutput:getOutputRows()
 end
 
 ---
--- Returns the output rows to display this client output's contents wrapped in ClientOutputString's.
+-- Returns the output rows padded with tabs until a specified tab number.
 --
--- @treturn ClientOutputString[] The output rows
+-- @tparam int _tabNumber The tab number
 --
-function BaseClientOutput:getOutputRowsAsClientOutputStrings()
+-- @treturn string[] The output rows padded with tabs
+--
+function BaseClientOutput:getOutputRowsPaddedWithTabs(_tabNumber)
 end
 
 
