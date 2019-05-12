@@ -1,5 +1,5 @@
 package = "AC-ClientOutput"
-version = "1.0.0-1"
+version = "1.1.0-1"
 
 description = {
   summary = "Library for formatting outputs to clients for AssaultCube Lua servers",
@@ -12,7 +12,7 @@ description = {
 
 source = {
   url = "git+https://github.com/wesen1/AC-ClientOutput.git",
-  tag = "v1.0.0"
+  tag = "v1.1.0"
 }
 
 dependencies = {
