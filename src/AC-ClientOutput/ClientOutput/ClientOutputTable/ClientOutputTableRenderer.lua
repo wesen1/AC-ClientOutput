@@ -10,7 +10,7 @@
 --
 -- @type ClientOutputTableRenderer
 --
-local ClientOutputTableRenderer = setmetatable({}, {})
+local ClientOutputTableRenderer = {}
 
 
 ---
@@ -21,23 +21,22 @@ local ClientOutputTableRenderer = setmetatable({}, {})
 ClientOutputTableRenderer.parentClientOutputTable = nil
 
 
+-- Metamethods
+
 ---
 -- ClientOutputTableRenderer constructor.
+-- This is the __call metamethod.
 --
 -- @tparam ClientOutputTable _parentClientOutputTable The parent ClientOutputTable
 --
 -- @treturn ClientOutputTableRenderer The ClientOutputTableRenderer instance
 --
 function ClientOutputTableRenderer:__construct(_parentClientOutputTable)
-
   local instance = setmetatable({}, {__index = ClientOutputTableRenderer})
   instance.parentClientOutputTable = _parentClientOutputTable
 
   return instance
-
 end
-
-getmetatable(ClientOutputTableRenderer).__call = ClientOutputTableRenderer.__construct
 
 
 -- Public Methods
@@ -277,6 +276,10 @@ function ClientOutputTableRenderer:generateRowStrings(_outputTable, _padTabNumbe
   return rowOutputStrings
 
 end
+
+
+-- When ClientOutputTableRenderer() is called, call the __construct method
+setmetatable(ClientOutputTableRenderer, {__call = ClientOutputTableRenderer.__construct})
 
 
 return ClientOutputTableRenderer

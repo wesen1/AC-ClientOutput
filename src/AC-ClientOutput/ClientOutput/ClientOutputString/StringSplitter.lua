@@ -13,7 +13,7 @@ local RowBuilder = require("AC-ClientOutput/ClientOutput/ClientOutputString/RowB
 --
 -- @type StringSplitter
 --
-local StringSplitter = setmetatable({}, {})
+local StringSplitter = {}
 
 
 ---
@@ -45,8 +45,11 @@ StringSplitter.parsedString = nil
 StringSplitter.rowBuilder = nil
 
 
+-- Metamethods
+
 ---
 -- StringSplitter constructor.
+-- This is the __call metamethod.
 --
 -- @tparam ClientOutputString _parentClientOutputString The parent ClientOutputString
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
@@ -64,8 +67,6 @@ function StringSplitter:__construct(_parentClientOutputString, _symbolWidthLoade
   return instance
 
 end
-
-getmetatable(StringSplitter).__call = StringSplitter.__construct
 
 
 -- Public Methods
@@ -139,6 +140,10 @@ function StringSplitter:getParsedParentClientOutputString()
   return self.parsedString
 
 end
+
+
+-- When StringSplitter() is called, call the __construct method
+setmetatable(StringSplitter, {__call = StringSplitter.__construct})
 
 
 return StringSplitter

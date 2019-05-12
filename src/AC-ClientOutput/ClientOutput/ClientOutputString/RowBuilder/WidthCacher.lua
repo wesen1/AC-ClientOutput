@@ -10,7 +10,7 @@
 --
 -- @type WidthCacher
 --
-local WidthCacher = setmetatable({}, {})
+local WidthCacher = {}
 
 
 ---
@@ -44,8 +44,11 @@ WidthCacher.maximumTotalWidthHistorySize = 0
 WidthCacher.maximumTotalWidthHistorySizeReached = nil
 
 
+-- Metamethods
+
 ---
 -- WidthCacher constructor.
+-- This is the __call metamethod.
 --
 -- @tparam int _maximumTotalWidthHistorySize The maximum size for the totalWidthHistory
 --
@@ -58,8 +61,6 @@ function WidthCacher:__construct(_maximumTotalWidthHistorySize)
 
   return instance
 end
-
-getmetatable(WidthCacher).__call = WidthCacher.__construct
 
 
 -- Public Methods
@@ -159,6 +160,10 @@ function WidthCacher:getWidthAtPosition(_position)
   end
 
 end
+
+
+-- When WidthCacher() is called, call the __construct method
+setmetatable(WidthCacher, {__call = WidthCacher.__construct})
 
 
 return WidthCacher

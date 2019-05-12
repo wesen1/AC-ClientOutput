@@ -14,7 +14,7 @@ local WidthCacher = require("AC-ClientOutput/ClientOutput/ClientOutputString/Row
 --
 -- @type RowBuilder
 --
-local RowBuilder = setmetatable({}, {})
+local RowBuilder = {}
 
 
 ---
@@ -82,8 +82,11 @@ RowBuilder.currentRowStartPosition = nil
 RowBuilder.lastParsedPosition = nil
 
 
+-- Metamethods
+
 ---
 -- RowBuilder constructor.
+-- This is the __call metamethod.
 --
 -- @tparam ClientOutputString _parentClientOutputString The parent ClientOutputString
 -- @tparam SymbolWidthLoader _symbolWidthLoader The SymbolWidthLoader
@@ -104,8 +107,6 @@ function RowBuilder:__construct(_parentClientOutputString, _symbolWidthLoader, _
   return instance
 
 end
-
-getmetatable(RowBuilder).__call = RowBuilder.__construct
 
 
 -- Getters and Setters
@@ -290,6 +291,10 @@ function RowBuilder:initializeNextRowWidth()
   end
 
 end
+
+
+-- When RowBuilder() is called, call the __construct method
+setmetatable(RowBuilder, {__call = RowBuilder.__construct})
 
 
 return RowBuilder

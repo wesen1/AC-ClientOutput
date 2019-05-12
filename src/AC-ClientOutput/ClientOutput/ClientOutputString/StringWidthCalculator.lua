@@ -10,7 +10,7 @@
 --
 -- @type StringWidthCalculator
 --
-local StringWidthCalculator = setmetatable({}, {})
+local StringWidthCalculator = {}
 
 
 ---
@@ -35,8 +35,11 @@ StringWidthCalculator.symbolWidthLoader = nil
 StringWidthCalculator.tabStopCalculator = nil
 
 
+-- Metamethods
+
 ---
 -- StringWidthCalculator constructor.
+-- This is the __call metamethod.
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
@@ -53,8 +56,6 @@ function StringWidthCalculator:__construct(_symbolWidthLoader, _tabStopCalculato
   return instance
 
 end
-
-getmetatable(StringWidthCalculator).__call = StringWidthCalculator.__construct
 
 
 -- Getters and Setters
@@ -142,6 +143,10 @@ function StringWidthCalculator:getStringWidth(_string)
   self:addString(_string)
   return self.width
 end
+
+
+-- When StringWidthCalculator() is called, call the __construct method
+setmetatable(StringWidthCalculator, {__call = StringWidthCalculator.__construct})
 
 
 return StringWidthCalculator

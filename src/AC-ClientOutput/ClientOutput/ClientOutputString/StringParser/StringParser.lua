@@ -12,7 +12,7 @@ local ParsedString = require("AC-ClientOutput/ClientOutput/ClientOutputString/St
 --
 -- @type StringParser
 --
-local StringParser = setmetatable({}, {})
+local StringParser = {}
 
 
 ---
@@ -33,8 +33,11 @@ StringParser.lineSplitCharacters = ""
 StringParser.nextCharacterIsAColor = false
 
 
+-- Metamethods
+
 ---
 -- StringParser constructor.
+-- This is the __call metamethod.
 --
 -- @tparam string _lineSplitCharacters The line split characters
 --
@@ -46,8 +49,6 @@ function StringParser:__construct(_lineSplitCharacters)
 
   return instance
 end
-
-getmetatable(StringParser).__call = StringParser.__construct
 
 
 -- Getters and Setters
@@ -119,6 +120,10 @@ function StringParser:parseCharacter(_parsedString, _characterNumber, _character
   end
 
 end
+
+
+-- When StringParser() is called, call the __construct method
+setmetatable(StringParser, {__call = StringParser.__construct})
 
 
 return StringParser

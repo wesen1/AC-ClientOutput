@@ -10,7 +10,7 @@
 --
 -- @type ParsedString
 --
-local ParsedString = setmetatable({}, {})
+local ParsedString = {}
 
 
 ---
@@ -69,10 +69,14 @@ ParsedString.colors = {}
 ParsedString.currentWhitespaceGroup = nil
 
 
+-- Metamethods
+
 ---
 -- ParsedString constructor.
+-- This is the __call metamethod.
 --
 -- @tparam string _string The original string
+-- @tparam string|nil _lineSplitCharacters The line split characters
 --
 -- @treturn ParsedString The ParsedString instance
 --
@@ -90,8 +94,6 @@ function ParsedString:__construct(_string, _lineSplitCharacters)
   return instance
 
 end
-
-getmetatable(ParsedString).__call = ParsedString.__construct
 
 
 -- Getters and Setters
@@ -328,6 +330,10 @@ function ParsedString:getWhitespaceGroupContainingPosition(_position, _allowedDi
   end
 
 end
+
+
+-- When ParsedString() is called, call the __construct method
+setmetatable(ParsedString, {__call = ParsedString.__construct})
 
 
 return ParsedString

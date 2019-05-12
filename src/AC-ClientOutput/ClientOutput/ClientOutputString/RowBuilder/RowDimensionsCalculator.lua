@@ -10,7 +10,7 @@
 --
 -- @type RowDimensionsCalculator
 --
-local RowDimensionsCalculator = setmetatable({}, {})
+local RowDimensionsCalculator = {}
 
 
 ---
@@ -21,8 +21,11 @@ local RowDimensionsCalculator = setmetatable({}, {})
 RowDimensionsCalculator.minimumRowLength = nil
 
 
+-- Metamethods
+
 ---
 -- RowDimensionsCalculator constructor.
+-- This is the __call metamethod.
 --
 -- @tparam int _minimumRowLength The minimum row length
 --
@@ -34,8 +37,6 @@ function RowDimensionsCalculator:__construct(_minimumRowLength)
 
   return instance
 end
-
-getmetatable(RowDimensionsCalculator).__call = RowDimensionsCalculator.__construct
 
 
 -- Getters and Setters
@@ -123,6 +124,10 @@ function RowDimensionsCalculator:calculateNextRowEndPosition(_parsedString, _max
   end
 
 end
+
+
+-- When RowDimensionsCalculator() is called, call the __construct method
+setmetatable(RowDimensionsCalculator, {__call = RowDimensionsCalculator.__construct})
 
 
 return RowDimensionsCalculator
