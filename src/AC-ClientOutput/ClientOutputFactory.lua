@@ -15,7 +15,7 @@ local TabStopCalculator = require("AC-ClientOutput/ClientOutput/Util/TabStopCalc
 --
 -- @type ClientOutputFactory
 --
-local ClientOutputFactory = setmetatable({}, {})
+local ClientOutputFactory = {}
 
 
 ---
@@ -58,20 +58,20 @@ ClientOutputFactory.defaultConfiguration = {
 }
 
 
+-- Metamethods
+
 ---
 -- ClientOutputFactory constructor.
+-- This is the __call metamethod.
 --
 -- @treturn ClientOutputFactory The ClientOutputFactory instance
 --
 function ClientOutputFactory:__construct()
-
   local instance = setmetatable({}, {__index = ClientOutputFactory})
   instance:changeFontConfig("FontDefault")
 
   return instance
 end
-
-getmetatable(ClientOutputFactory).__call = ClientOutputFactory.__construct
 
 
 -- Public Methods
@@ -180,6 +180,10 @@ function ClientOutputFactory:changeFontConfig(_fontConfigFileName)
   self.symbolWidthLoader = SymbolWidthLoader(_fontConfigFileName)
   self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
 end
+
+
+-- When ClientOutputFactory() is called, call the __construct method
+setmetatable(ClientOutputFactory, {__call = ClientOutputFactory.__construct})
 
 
 return ClientOutputFactory

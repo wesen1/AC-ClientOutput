@@ -10,7 +10,7 @@
 --
 -- @type BaseClientOutput
 --
-local BaseClientOutput = setmetatable({}, {})
+local BaseClientOutput = {}
 
 
 ---
@@ -58,8 +58,11 @@ BaseClientOutput.newLineIndent = nil
 BaseClientOutput.lineSplitCharacters = nil
 
 
+-- Metamethods
+
 ---
 -- BaseClientOutput constructor.
+-- This is the __call metamethod.
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
@@ -78,8 +81,6 @@ function BaseClientOutput:__construct(_symbolWidthLoader, _tabStopCalculator, _m
   return instance
 
 end
-
-getmetatable(BaseClientOutput).__call = BaseClientOutput.__construct
 
 
 -- Getters and Setters
@@ -224,6 +225,10 @@ end
 --
 function BaseClientOutput:getOutputRowsPaddedWithTabs(_tabNumber)
 end
+
+
+-- When BaseClientOutput() is called, call the __construct method
+setmetatable(BaseClientOutput, {__call = BaseClientOutput.__construct})
 
 
 return BaseClientOutput

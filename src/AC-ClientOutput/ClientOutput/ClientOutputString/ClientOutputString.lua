@@ -15,7 +15,7 @@ local StringWidthCalculator = require("AC-ClientOutput/ClientOutput/ClientOutput
 --
 -- @type ClientOutputString
 --
-local ClientOutputString = setmetatable({}, {__index = BaseClientOutput})
+local ClientOutputString = {}
 
 
 ---
@@ -38,6 +38,7 @@ ClientOutputString.splitter = nil
 
 ---
 -- ClientOutputString constructor.
+-- This is the __call metamethod.
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
@@ -55,8 +56,6 @@ function ClientOutputString:__construct(_symbolWidthLoader, _tabStopCalculator, 
   return instance
 
 end
-
-getmetatable(ClientOutputString).__call = ClientOutputString.__construct
 
 
 -- Getters and Setters
@@ -120,6 +119,18 @@ end
 function ClientOutputString:getOutputRowsPaddedWithTabs(_tabNumber)
   return self.splitter:getRows(_tabNumber)
 end
+
+
+setmetatable(
+  ClientOutputString,
+  {
+    -- ClientOutputString inherits methods and attributes from BaseClientOutput
+    __index = BaseClientOutput,
+
+    -- When ClientOutputString() is called, call the __construct method
+    __call = ClientOutputString.__construct
+  }
+)
 
 
 return ClientOutputString

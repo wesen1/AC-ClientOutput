@@ -12,7 +12,7 @@ local ClientOutputTableRenderer = require("AC-ClientOutput/ClientOutput/ClientOu
 --
 -- @type ClientOutputTable
 --
-local ClientOutputTable = setmetatable({}, {__index = BaseClientOutput})
+local ClientOutputTable = {}
 
 
 ---
@@ -37,8 +37,11 @@ ClientOutputTable.renderer = nil
 ClientOutputTable.groupConfigurations = nil
 
 
+-- Metamethods
+
 ---
 -- ClientOutputTable constructor.
+-- This is the __call metamethod.
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
@@ -56,8 +59,6 @@ function ClientOutputTable:__construct(_symbolWidthLoader, _tabStopCalculator, _
   return instance
 
 end
-
-getmetatable(ClientOutputTable).__call = ClientOutputTable.__construct
 
 
 -- Getters and Setters
@@ -321,6 +322,18 @@ function ClientOutputTable:addGroupConfiguration(_configuration, _groupConfigura
   end
 
 end
+
+
+setmetatable(
+  ClientOutputTable,
+  {
+    -- ClientOutputTable inherits methods and attributes from BaseClientOutput
+    __index = BaseClientOutput,
+
+    -- When ClientOutputTable() is called, call the __construct method
+    __call = ClientOutputTable.__construct
+  }
+)
 
 
 return ClientOutputTable

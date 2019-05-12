@@ -10,7 +10,7 @@
 --
 -- @type SymbolWidthLoader
 --
-local SymbolWidthLoader = setmetatable({}, {})
+local SymbolWidthLoader = {}
 
 
 ---
@@ -21,8 +21,11 @@ local SymbolWidthLoader = setmetatable({}, {})
 SymbolWidthLoader.fontConfig = nil
 
 
+-- Metamethods
+
 ---
 -- SymbolWidthLoader constructor.
+-- This is the __call metamethod.
 --
 -- @tparam string _fontConfigFileName The font config file name
 --
@@ -36,8 +39,6 @@ function SymbolWidthLoader:__construct(_fontConfigFileName)
   return instance
 
 end
-
-getmetatable(SymbolWidthLoader).__call = SymbolWidthLoader.__construct
 
 
 -- Public Methods
@@ -59,6 +60,10 @@ function SymbolWidthLoader:getCharacterWidth(_character)
   end
 
 end
+
+
+-- When SymbolWidthLoader() is called, call the __construct method
+setmetatable(SymbolWidthLoader, {__call = SymbolWidthLoader.__construct})
 
 
 return SymbolWidthLoader
