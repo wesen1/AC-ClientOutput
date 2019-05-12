@@ -45,24 +45,24 @@ getmetatable(ClientOutputTableRenderer).__call = ClientOutputTableRenderer.__con
 ---
 -- Returns the row output strings for the parent ClientOutputTable.
 --
--- @tparam bool _returnAsClientOutputStrings Whether to return the rows as ClientOutputString instances
+-- @tparam int|nil _padTabNumber The pad tab number (optional)
 --
 -- @treturn string[]|ClientOutputString[] The row output strings
 --
-function ClientOutputTableRenderer:getOutputRows(_returnAsClientOutputStrings)
+function ClientOutputTableRenderer:getOutputRows(_padTabNumber)
 
   self:calculateNumbersOfTabsPerColumn()
 
   -- Replace the sub tables with the result of getRowStrings()
-  local outputTable = self:convertSubTablesToRows()
+  local outputTable = self:convertSubTablesToRows(_padTabNumber)
 
   -- Merge the sub rows into the main table
   outputTable = self:mergeSubRows(outputTable)
 
   -- Add the tabs to the fields
-  outputTable = self:addTabsToFields(outputTable, _returnAsClientOutputStrings)
+  outputTable = self:addTabsToFields(outputTable, _padTabNumber)
 
-  return self:generateRowStrings(outputTable, _returnAsClientOutputStrings)
+  return self:generateRowStrings(outputTable, _padTabNumber)
 
 end
 
@@ -126,18 +126,28 @@ end
 ---
 -- Replaces sub tables by the row output strings of the sub table.
 --
+-- @tparam int|nil _padTabNumber The pad tab number (optional)
+--
 -- @treturn table The table with converted sub tables
 --
-function ClientOutputTableRenderer:convertSubTablesToRows()
+function ClientOutputTableRenderer:convertSubTablesToRows(_padTabNumber)
 
   local outputTable = {}
 
+  local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
+  local padTabNumberIsDefined = (_padTabNumber ~= nil)
   for y, tableRow in ipairs(self.parentClientOutputTable:getRows()) do
 
     outputTable[y] = {}
     for x, tableField in ipairs(tableRow) do
+
       tableField:changeMaximumNumberOfTabs(self.numbersOfTabsPerColumn[x])
-      outputTable[y][x] = tableField:getOutputRowsAsClientOutputStrings()
+      if (padTabNumberIsDefined or x < numberOfColumns) then
+        outputTable[y][x] = tableField:getOutputRowsPaddedWithTabs(self.numbersOfTabsPerColumn[x])
+      else
+        outputTable[y][x] = tableField:getOutputRows()
+      end
+
     end
 
   end
@@ -194,7 +204,6 @@ function ClientOutputTableRenderer:mergeSubRows(_outputTable)
       else
         outputTable[mainTableInsertIndex][x] = tableField
       end
-
     end
 
     mainTableInsertIndex = maximumMainTableInsertIndexForTable + 1
@@ -209,13 +218,14 @@ end
 -- Adds the tabs to all fields of the table.
 --
 -- @tparam table _outputTable The output table
--- @tparam bool _returnAsClientOutputStrings Whether to return the rows as ClientOutputString instances
+-- @tparam int|nil _padTabNumber The pad tab number (optional)
 --
 -- @treturn table The output table with added tabs
 --
-function ClientOutputTableRenderer:addTabsToFields(_outputTable, _returnAsClientOutputStrings)
+function ClientOutputTableRenderer:addTabsToFields(_outputTable, _padTabNumber)
 
   local outputTable = {}
+  local padTabNumberIsDefined = (_padTabNumber ~= nil)
 
   if (_outputTable) then
 
@@ -229,21 +239,15 @@ function ClientOutputTableRenderer:addTabsToFields(_outputTable, _returnAsClient
 
         local field = tableRow[x]
 
-        if (x < numberOfColumns or _returnAsClientOutputStrings) then
-
-          if (field == nil) then
+        if (field == nil) then
+          if (padTabNumberIsDefined or x < numberOfColumns) then
             field = string.rep("\t", numberOfTabsForColumn)
           else
-            field = field:padWithTabs(numberOfTabsForColumn)
-          end
-
-          outputTable[y][x] = field
-
-        else
-          if (field ~= nil) then
-            outputTable[y][x] = field:toString()
+            field = ""
           end
         end
+
+        outputTable[y][x] = field
 
       end
     end
@@ -259,39 +263,15 @@ end
 -- The output table must be one dimensional and may not contain empty fields.
 --
 -- @tparam table[] _outputTable The output table
--- @tparam bool _returnAsClientOutputStrings Whether to return the rows as ClientOutputString instances
+-- @tparam int|nil _padTabNumber The pad tab number (optional)
 --
 -- @treturn string[]|ClientOutputString[] The output rows
 --
-function ClientOutputTableRenderer:generateRowStrings(_outputTable, _returnAsClientOutputStrings)
-
-  local ClientOutputFactory = require("AC-ClientOutput/ClientOutputFactory")
-  local tabStopCalculator = self.parentClientOutputTable:getTabStopCalculator()
-
-  local numberOfUsedTabs, rowWidth
-
-  if (_returnAsClientOutputStrings) then
-    numberOfUsedTabs = 0
-    for x = 1, #self.numbersOfTabsPerColumn, 1 do
-      numberOfUsedTabs = numberOfUsedTabs + self.numbersOfTabsPerColumn[x]
-    end
-
-    rowWidth = tabStopCalculator:convertTabNumberToPosition(numberOfUsedTabs)
-  end
+function ClientOutputTableRenderer:generateRowStrings(_outputTable, _padTabNumber)
 
   local rowOutputStrings = {}
   for y, row in ipairs(_outputTable) do
-
-    -- Build the row output strings by joining the fields together with "\t"s
-    local rowString = table.concat(row, "")
-
-    if (_returnAsClientOutputStrings) then
-      rowString = ClientOutputFactory.getInstance():getClientOutputString(rowString)
-      rowString:setCachedWidth(rowWidth)
-    end
-
-    rowOutputStrings[y] = rowString
-
+    rowOutputStrings[y] = table.concat(row, "")
   end
 
   return rowOutputStrings
