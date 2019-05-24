@@ -33,6 +33,20 @@ ClientOutputString.string = nil
 --
 ClientOutputString.splitter = nil
 
+---
+-- The string width calculator
+--
+-- @tfield StringWidthCalculator stringWidthCalculator
+--
+ClientOutputString.stringWidthCalculator = nil
+
+---
+-- The tab stop calculator
+--
+-- @tfield TabStopCalculator tabStopCalculator
+--
+ClientOutputString.tabStopCalculator = nil
+
 
 -- Metamethods
 
@@ -42,19 +56,19 @@ ClientOutputString.splitter = nil
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
--- @tparam int _maximumLineWidth The maximum line width
+-- @tparam ClientOutputConfiguration _configuration The configuration
 --
 -- @treturn ClientOutputString The ClientOutputString instance
 --
-function ClientOutputString:__construct(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
-
-  local instance = BaseClientOutput(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
+function ClientOutputString:__construct(_symbolWidthLoader, _tabStopCalculator, _configuration)
+  local instance = BaseClientOutput(_configuration)
   setmetatable(instance, {__index = ClientOutputString})
 
+  instance.tabStopCalculator = _tabStopCalculator
   instance.splitter = StringSplitter(instance, _symbolWidthLoader, _tabStopCalculator)
+  instance.stringWidthCalculator = StringWidthCalculator(_symbolWidthLoader, _tabStopCalculator)
 
   return instance
-
 end
 
 
@@ -87,8 +101,10 @@ end
 -- @treturn int The number of required tabs
 --
 function ClientOutputString:getNumberOfRequiredTabs()
-  local stringWidthCalculator = StringWidthCalculator(self.symbolWidthLoader, self.tabStopCalculator)
-  return self.tabStopCalculator:getNextTabStopNumber(stringWidthCalculator:getStringWidth(self.string))
+  self.stringWidthCalculator:reset()
+  local stringWidth = self.stringWidthCalculator:getStringWidth(self.string)
+
+  return self.tabStopCalculator:getNextTabStopNumber(stringWidth)
 end
 
 ---
@@ -110,14 +126,12 @@ function ClientOutputString:getOutputRows()
 end
 
 ---
--- Returns the output rows padded with tabs until a specified tab number.
---
--- @tparam int _tabNumber The tab number
+-- Returns the output rows padded with tabs until the configured maxmimum number of tabs.
 --
 -- @treturn string[] The output rows padded with tabs
 --
-function ClientOutputString:getOutputRowsPaddedWithTabs(_tabNumber)
-  return self.splitter:getRows(_tabNumber)
+function ClientOutputString:getOutputRowsPaddedWithTabs()
+  return self.splitter:getRows(self.configuration:getMaximumNumberOfTabs())
 end
 
 

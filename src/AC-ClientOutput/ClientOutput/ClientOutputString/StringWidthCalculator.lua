@@ -51,7 +51,7 @@ function StringWidthCalculator:__construct(_symbolWidthLoader, _tabStopCalculato
   local instance = setmetatable({}, {__index = StringWidthCalculator})
   instance.symbolWidthLoader = _symbolWidthLoader
   instance.tabStopCalculator = _tabStopCalculator
-  instance.width = -1
+  instance.width = 0
 
   return instance
 
@@ -101,25 +101,26 @@ end
 --
 function StringWidthCalculator:addCharacter(_character)
 
-  -- In "src/rendertext.cpp" the width calculation is done as follows:
-  --   1. The initial width is the first character of the string
-  --   2. Every character after that is added to the total width by adding its width + 1
-  --
-  -- However the whitespace width is added as "+ default character width" while the +1 for the pixel between
-  -- the characters is omitted.
-  -- This leads to a bug in the calculation when the first character of a string is a whitespace because
-  -- that one is not supposed to have the +1 pixel added.
-  --
-  -- To replicate the same behaviour the initial width is set here accordingly.
-  --
-  if (self.width == -1 and _character == " ") then
-    self.width = 0
-  end
-
   if (_character == "\t") then
     self.width = self.tabStopCalculator:getNextTabStopPosition(self.width)
   else
-    self.width = self.width + self.symbolWidthLoader:getCharacterWidth(_character) + 1
+
+    -- In "src/rendertext.cpp" the width calculation is done as follows:
+    --   1. The initial width is the first character of the string
+    --   2. Every character after that is added to the total width by adding its width + 1
+    --
+    -- However the whitespace width is added as "+ default character width" while the +1 for the pixel between
+    -- the characters is omitted.
+    -- This leads to a bug in the calculation when the first character of a string is a whitespace because
+    -- that one is not supposed to have the +1 pixel added.
+    --
+    -- To replicate the same behaviour +1 is added here accordingly.
+    --
+    if (self.width > 0 or _character == " ") then
+      self.width = self.width + 1
+    end
+    self.width = self.width + self.symbolWidthLoader:getCharacterWidth(_character)
+
   end
 
 end
