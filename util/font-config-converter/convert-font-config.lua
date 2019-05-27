@@ -42,7 +42,7 @@ function parseFontConfig(_fontConfigFilePath)
       parsedFontConfig["defaultWidth"] = defaultWidth
 
       -- A whitespace's width equals the default width - 1 (see rendertext.cpp)
-      parsedFontConfig["symbolWidths"][" "] = defaultWidth -1
+      parsedFontConfig["symbolWidths"][" "] = defaultWidth - 1
 
       -- A tab's width equals the default width * 10 (see protos.h)
       parsedFontConfig["symbolWidths"]["\\t"] = defaultWidth * 10
