@@ -10,6 +10,8 @@ local TestCase = require("TestFrameWork/TestCase")
 ---
 -- Checks that the TabStopCalculator class works as expected.
 --
+-- @type TestTabStopCalculator
+--
 local TestTabStopCalculator = {}
 
 

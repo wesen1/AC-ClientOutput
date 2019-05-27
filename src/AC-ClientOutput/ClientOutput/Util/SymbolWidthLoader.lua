@@ -32,12 +32,10 @@ SymbolWidthLoader.fontConfig = nil
 -- @treturn SymbolWidthLoader The SymbolWidthLoader instance
 --
 function SymbolWidthLoader:__construct(_fontConfigFileName)
-
   local instance = setmetatable({}, {__index = SymbolWidthLoader})
   instance.fontConfig = require("AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName)
 
   return instance
-
 end
 
 
