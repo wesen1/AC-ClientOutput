@@ -51,7 +51,7 @@ function StringWidthCalculator:__construct(_symbolWidthLoader, _tabStopCalculato
   local instance = setmetatable({}, {__index = StringWidthCalculator})
   instance.symbolWidthLoader = _symbolWidthLoader
   instance.tabStopCalculator = _tabStopCalculator
-  instance.width = -1
+  instance.width = 0
 
   return instance
 
@@ -128,7 +128,7 @@ end
 -- Resets the width to its initial value.
 --
 function StringWidthCalculator:reset()
-  self.width = -1
+  self.width = 0
 end
 
 ---
