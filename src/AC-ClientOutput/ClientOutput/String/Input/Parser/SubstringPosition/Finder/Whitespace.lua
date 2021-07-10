@@ -5,7 +5,7 @@
 -- @license MIT
 --
 
-local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubStringPosition.Finder.Base"
+local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubstringPosition.Finder.Base"
 
 ---
 -- Finds all whitespace substrings in given lines.
@@ -34,7 +34,7 @@ end
 -- @treturn Position[] The substring positions that were found in the line
 --
 function Whitespace:findPositionsInLine(_line)
-  return self:getPositionsByPattern(_line, "%s+")
+  return self:findPositionsByPattern(_line, "%s+")
 end
 
 

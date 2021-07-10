@@ -5,7 +5,8 @@
 -- @license MIT
 --
 
-local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubStringPosition.Finder.Base"
+local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubstringPosition.Finder.Base"
+local Position = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubstringPosition.Position"
 
 ---
 -- Finds all substrings that contain specific characters in given lines.
@@ -27,11 +28,11 @@ Custom.searchCharacters = nil
 -- Custom constructor.
 --
 -- @tparam string _identifier The unique identifier of the substring position finder
--- @tparam string _searchCharacters The characters to search for (Default: ".")
+-- @tparam string _searchCharacters The characters to search for
 --
 function Custom:new(_identifier, _searchCharacters)
-  Custom.new(self, _identifier)
-  self.searchCharacters = _searchCharacters or "."
+  Base.new(self, _identifier)
+  self.searchCharacters = _searchCharacters
 end
 
 
@@ -44,8 +45,27 @@ end
 --
 -- @treturn Position[] The substring positions that were found in the line
 --
-function Custom:getPositionsInLine(_line)
-  return self:getPositionsByPattern(_line, "[^\f]([" .. self.searchCharacters .. "]+)")
+function Custom:findPositionsInLine(_line)
+
+  return self:findPositionsByPattern(
+    _line,
+    "\f?[" .. self.searchCharacters .. "]+",
+    function(_position)
+
+      if (_line:sub(_position:getStartPosition(), _position:getStartPosition()) == "\f") then
+        local startPosition = _position:getStartPosition() + 2
+        local endPosition = _position:getEndPosition()
+
+        if (startPosition <= endPosition) then
+          return Position(startPosition, endPosition)
+        end
+
+      else
+        return _position
+      end
+    end
+  )
+
 end
 
 

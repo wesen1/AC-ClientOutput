@@ -5,7 +5,7 @@
 -- @license MIT
 --
 
-local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubStringPosition.Finder.Base"
+local Base = require "AC-ClientOutput.ClientOutput.String.Input.Parser.SubstringPosition.Finder.Base"
 
 ---
 -- Finds all color substrings in given lines.

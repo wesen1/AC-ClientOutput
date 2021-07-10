@@ -63,12 +63,16 @@ end
 ---
 -- Finds and returns all positions of a pattern in a given line.
 --
+-- The position processor callback should have the signature `function (Position)` and return the Position
+-- to insert into the result list or nil to ignore the Position.
+--
 -- @tparam string _line The line to search for positions of a pattern
 -- @tparam string _pattern The pattern to search the line for
+-- @tparam function|nil _positionProcessorCallback The Position processor that is called before adding a Position to the result list
 --
 -- @treturn Position[] The pattern positions that were found in the line
 --
-function Base:findPositionsByPattern(_line, _pattern)
+function Base:findPositionsByPattern(_line, _pattern, _positionProcessorCallback)
 
   local positions = {}
 
@@ -76,8 +80,18 @@ function Base:findPositionsByPattern(_line, _pattern)
   repeat
     startPosition, endPosition = _line:find(_pattern, searchOffset)
     if (startPosition ~= nil) then
-      table.insert(positions, Position(startPosition, endPosition))
+
       searchOffset = endPosition + 1
+
+      local position = Position(startPosition, endPosition)
+      if (_positionProcessorCallback ~= nil) then
+        position = _positionProcessorCallback(position)
+      end
+
+      if (position ~= nil) then
+        table.insert(positions, position)
+      end
+
     end
   until (startPosition == nil)
 
