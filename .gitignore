@@ -1,1 +1,4 @@
 docs
+tests/coverage-report
+tests/luacov.report.out
+tests/luacov.stats.out
