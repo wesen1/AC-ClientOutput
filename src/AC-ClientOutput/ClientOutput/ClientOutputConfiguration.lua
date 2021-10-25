@@ -1,25 +1,19 @@
 ---
 -- @author wesen
--- @copyright 2019 wesen <wesen-ac@web.de>
+-- @copyright 2019-2020 wesen <wesen-ac@web.de>
 -- @release 0.1
 -- @license MIT
 --
+
+local Object = require "classic"
 
 ---
 -- Stores the configuration for a BaseClientOutput and provides methods to parse user defined configurations.
 --
 -- @type ClientOutputConfiguration
 --
-local ClientOutputConfiguration = {}
+local ClientOutputConfiguration = Object:extend()
 
-
----
--- The tab stop calculator
--- This is used to calculate the maximum number of tabs from a maximum line width and vice versa
---
--- @tfield TabStopCalculator tabStopCalculator
---
-ClientOutputConfiguration.tabStopCalculator = nil
 
 ---
 -- The maximum value that may be configured for the maximumLineWidth attribute by the parse method
@@ -31,7 +25,8 @@ ClientOutputConfiguration.tabStopCalculator = nil
 ClientOutputConfiguration.maximumConfigurableLineWidth = nil
 
 ---
--- The maximum line width in 3x pixels for the BaseClientOutput
+-- The maximum line width in 3x pixels
+-- If a string is wider than this width it must be split into multiple output lines
 --
 -- @tfield int maximumLineWidth
 --
@@ -65,17 +60,11 @@ ClientOutputConfiguration.lineSplitCharacters = nil
 
 ---
 -- ClientOutputConfiguration constructor.
--- This is the __call metamethod.
 --
--- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
 --
 -- @treturn ClientOutputConfiguration The ClientOutputConfiguration instance
 --
-function ClientOutputConfiguration:__construct(_tabStopCalculator)
-  local instance = setmetatable({}, {__index = ClientOutputConfiguration})
-  instance.tabStopCalculator = _tabStopCalculator
-
-  return instance
+function ClientOutputConfiguration:new()
 end
 
 

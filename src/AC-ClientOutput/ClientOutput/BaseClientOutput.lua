@@ -1,101 +1,90 @@
 ---
 -- @author wesen
--- @copyright 2019 wesen <wesen-ac@web.de>
--- @release 0.1
+-- @copyright 2019-2021 wesen <wesen-ac@web.de>
+-- @release 1.0
 -- @license MIT
 --
 
----
--- Base class for client outputs.
---
--- @type BaseClientOutput
---
-local BaseClientOutput = {}
-
+local NoStringParsedException = require "AC-ClientOutput.ClientOutput.String.Exception.NoStringParsed"
+local Object = require "classic"
 
 ---
--- The configuration of this BaseClientOutput.
+-- Base class for ClientOutput's.
+-- ClientOutput's take inputs (for example strings or tables) and convert them to a set of output rows
+-- that should be sent to AC clients to display the input.
 --
--- @tfield ClientOutputConfiguration configuration
+-- This class defines a few methods that child classes must implement.
 --
-BaseClientOutput.configuration = nil
-
-
--- Metamethods
-
----
--- BaseClientOutput constructor.
--- This is the __call metamethod.
+-- Call ClientOutputBase::parse() to parse an input into the ClientOutput.
+-- Then call ClientOutputBase::getOutputRows() to convert the parsed input to output rows for a given font.
 --
--- @tparam ClientOutputConfiguration _configuration The configuration for this ClientOutput
+-- @type ClientOutputBase
 --
--- @treturn BaseClientOutput The BaseClientOutput instance
---
-function BaseClientOutput:__construct(_configuration)
-  local instance = setmetatable({}, {__index = BaseClientOutput})
-  instance.configuration = _configuration
-
-  return instance
-end
-
-
--- Getters and Setters
+local ClientOutputBase = Object:extend()
 
 ---
--- Returns the configuration.
+-- The parsed input that was created from the input given to ClientOutputBase:parse()
 --
--- @treturn ClientOutputConfiguration configuration
+-- @tfield mixed parsedInput
 --
-function BaseClientOutput:getConfiguration()
-  return self.configuration
-end
+ClientOutputBase.parsedInput = nil
 
 
 -- Public Methods
 
 ---
--- Parses a target into this client output.
+-- Parses an input into this ClientOutput.
+-- A input can be a string or a table for example.
 --
--- @tparam mixed _target The target
+-- @tparam mixed _input The input
 --
-function BaseClientOutput:parse(_target)
+function ClientOutputBase:parse(_input)
+
+  if (self.parsedInput ~= nil) then
+    error(AlreadyParsedInputException())
+  end
+
+  self.parsedInput = self:doParse(_input)
+
 end
 
 ---
--- Returns the number of tabs that this client output's content requires.
+-- Generates and returns the output rows for the current parsed input.
 --
--- @treturn int The number of required tabs
+-- @treturn string[] The generated output rows
 --
-function BaseClientOutput:getNumberOfRequiredTabs()
+function ClientOutputBase:getOutputRows()
+
+  if (self.parsedInput == nil) then
+    error(NoInputParsedException())
+  end
+
+  return self:doGenerateOutputRows(self.parsedInput)
+
+end
+
+
+-- Protected Methods
+
+---
+-- Parses a given input and returns the parsed input.
+--
+-- @tparam mixed _input The input to parse
+--
+-- @treturn mixed The parsed input
+--
+function ClientOutputBase:doParse(_input)
 end
 
 ---
--- Returns the minimum number of tabs that this client output's content requires.
+-- Generates output rows from the given parsed input.
 --
--- @treturn int The minimum number of required tabs
+-- @tparam mixed _parsedInput The parsed input to generate output rows from
 --
-function BaseClientOutput:getMinimumNumberOfRequiredTabs()
-end
-
----
--- Returns the output rows to display this client output's contents.
+-- @treturn string[] The generated output rows
 --
--- @treturn string[] The output rows
---
-function BaseClientOutput:getOutputRows()
-end
-
----
--- Returns the output rows padded with tabs until the configured maxmimum number of tabs.
---
--- @treturn string[] The output rows padded with tabs
---
-function BaseClientOutput:getOutputRowsPaddedWithTabs()
+function ClientOutputBase:doGenerateOutputRows(_parsedInput)
 end
 
 
--- When BaseClientOutput() is called, call the __construct method
-setmetatable(BaseClientOutput, {__call = BaseClientOutput.__construct})
-
-
-return BaseClientOutput
+return ClientOutputBase
