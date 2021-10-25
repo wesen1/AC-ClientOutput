@@ -45,7 +45,7 @@ end
 -- Public Methods
 
 ---
--- Returns the row output rows for a ParsedTable.
+-- Returns the output rows for a ParsedTable.
 --
 -- @tparam ParsedTable _parsedTable The parsed table
 -- @tparam int _maximumNumberOfTabs The maximum number of tabs avaiable for each row

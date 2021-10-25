@@ -122,14 +122,7 @@ end
 --
 function ClientOutputFactory:getClientOutputString(_string, _configuration)
 
-  -- Create the configuration for the ClientOutputString
-  local configuration = ClientOutputConfiguration(self.tabStopCalculator)
-  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
-  if (type(_configuration) == "table") then
-    configuration:parse(_configuration)
-  end
-
-  -- Create the ClientOutputString
+  local configuration = self:generateClientOutputConfiguration(ClientOutputConfiguration, _configuration)
   local clientOutputString = ClientOutputString(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputString:parse(_string)
 
@@ -147,14 +140,7 @@ end
 --
 function ClientOutputFactory:getClientOutputTable(_table, _configuration)
 
-  -- Create the configuration for the ClientOutputTable
-  local configuration = ClientOutputTableConfiguration(self.tabStopCalculator)
-  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
-  if (type(_configuration) == "table") then
-    configuration:parse(_configuration)
-  end
-
-  -- Create the ClientOutputTable
+  local configuration = self:generateClientOutputConfiguration(ClientOutputTableConfiguration, _configuration)
   local clientOutputTable = ClientOutputTable(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputTable:parse(_table)
 
@@ -173,6 +159,32 @@ end
 function ClientOutputFactory:changeFontConfig(_fontConfigFileName)
   self.symbolWidthLoader = SymbolWidthLoader(_fontConfigFileName)
   self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
+end
+
+---
+-- Generates and returns a ClientOutputConfiguration instance.
+--
+-- @tparam ClientOutputConfiguration _configurationClass The configuration class type to return an instance of
+-- @tparam ClientOutputConfiguration|table _configuration The custom configuration to add
+--
+-- @treturn ClientOutputConfiguration The generated ClientOutputConfiguration instance
+--
+function ClientOutputFactory:generateClientOutputConfiguration(_configurationClass, _configuration)
+
+  if (type(_configuration) == "table" and type(_configuration.is) == "function" and _configuration.is(_configurationClass)) then
+    -- The given configuration already is a ClientOutputConfiguration instance
+    return _configuration
+  end
+
+  -- Create the ClientOutputConfiguration instance for the ClientOutputString
+  local configuration = _configurationClass(self.tabStopCalculator)
+  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
+  if (type(_configuration) == "table") then
+    configuration:parse(_configuration)
+  end
+
+  return configuration
+
 end
 
 
