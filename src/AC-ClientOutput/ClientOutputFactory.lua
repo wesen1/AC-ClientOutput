@@ -122,14 +122,7 @@ end
 --
 function ClientOutputFactory:getClientOutputString(_string, _configuration)
 
-  -- Create the configuration for the ClientOutputString
-  local configuration = ClientOutputConfiguration(self.tabStopCalculator)
-  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
-  if (type(_configuration) == "table") then
-    configuration:parse(_configuration)
-  end
-
-  -- Create the ClientOutputString
+  local configuration = self:generateClientOutputConfiguration(ClientOutputConfiguration, _configuration)
   local clientOutputString = ClientOutputString(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputString:parse(_string)
 
@@ -147,14 +140,7 @@ end
 --
 function ClientOutputFactory:getClientOutputTable(_table, _configuration)
 
-  -- Create the configuration for the ClientOutputTable
-  local configuration = ClientOutputTableConfiguration(self.tabStopCalculator)
-  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
-  if (type(_configuration) == "table") then
-    configuration:parse(_configuration)
-  end
-
-  -- Create the ClientOutputTable
+  local configuration = self:generateClientOutputConfiguration(ClientOutputTableConfiguration, _configuration)
   local clientOutputTable = ClientOutputTable(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputTable:parse(_table)
 
