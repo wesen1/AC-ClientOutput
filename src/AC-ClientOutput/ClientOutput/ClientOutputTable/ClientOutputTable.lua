@@ -6,7 +6,8 @@
 --
 
 local BaseClientOutput = require("AC-ClientOutput/ClientOutput/BaseClientOutput")
-local ClientOutputTableRenderer = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableRenderer")
+local TableRenderer = require("AC-ClientOutput/ClientOutput/ClientOutputTable/TableRenderer")
+local TableParser = require("AC-ClientOutput/ClientOutput/ClientOutputTable/TableParser/TableParser")
 
 ---
 -- Represents a output table for the console in the players games.
@@ -17,16 +18,23 @@ local ClientOutputTable = {}
 
 
 ---
--- The rows inside this table that were parsed from a lua table
+-- The table parser
 --
--- @tfield table[] rows
+-- @tfield TableParser parser
 --
-ClientOutputTable.rows = nil
+ClientOutputTable.parser = nil
+
+---
+-- The current parsed table
+--
+-- @tfield ParsedTable|nil parsedTable
+--
+ClientOutputTable.parsedTable = nil
 
 ---
 -- The renderer for this ClientOutputTable
 --
--- @tfield ClientOutputTableRenderer renderer
+-- @tfield TableRenderer renderer
 --
 ClientOutputTable.renderer = nil
 
@@ -47,22 +55,10 @@ function ClientOutputTable:__construct(_symbolWidthLoader, _tabStopCalculator, _
   local instance = BaseClientOutput(_configuration)
   setmetatable(instance, {__index = ClientOutputTable})
 
-  instance.renderer = ClientOutputTableRenderer(instance)
+  instance.parser = TableParser(_symbolWidthLoader, _tabStopCalculator)
+  instance.renderer = TableRenderer()
 
   return instance
-
-end
-
-
--- Getters and Setters
-
----
--- Returns the rows of this ClientOutputTable.
---
--- @treturn table[] The rows
---
-function ClientOutputTable:getRows()
-  return self.rows
 end
 
 
@@ -70,46 +66,11 @@ end
 
 ---
 -- Parses a table.
--- The table must be in the format { [y] = { rowFields } }, while a row field may contain a sub table.
--- Every row must have the same number of columns.
 --
 -- @tparam table _table The table to parse
 --
 function ClientOutputTable:parse(_table)
-
-  local ClientOutputFactory = require("AC-ClientOutput/ClientOutputFactory")
-
-  self.rows = {}
-  for y, row in ipairs(_table) do
-
-    self.rows[y] = {}
-
-    if (type(row) ~= "table") then
-      self.rows[y][1] = ClientOutputFactory.getInstance():getClientOutputString(
-        row,
-        self.configuration:getConfigurationForField(y, 1, false)
-      )
-    else
-
-      for x, field in ipairs(row) do
-
-        if (type(field) == "table") then
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(
-            field,
-            self.configuration:getConfigurationForField(y, x, true)
-          )
-        else
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(
-            tostring(field),
-            self.configuration:getConfigurationForField(y, x, false)
-          )
-        end
-
-      end
-
-    end
-  end
-
+  self.parsedTable = self.parser:parse(_table, self.configuration)
 end
 
 ---
@@ -119,12 +80,11 @@ end
 --
 function ClientOutputTable:getNumberOfRequiredTabs()
 
-  local numberOfRequiredTabs = 0
-  for x = 1, self:getNumberOfColumns(), 1 do
-    numberOfRequiredTabs = numberOfRequiredTabs + self:getNumberOfRequiredTabsForColumn(x)
+  if (self.parsedTable) then
+    return self.parsedTable:getTotalNumberOfRequiredTabs(false)
+  else
+    return 0
   end
-
-  return numberOfRequiredTabs
 
 end
 
@@ -135,12 +95,11 @@ end
 --
 function ClientOutputTable:getMinimumNumberOfRequiredTabs()
 
-  local minimumNumberOfRequiredTabs = 0
-  for x = 1, self:getNumberOfColumns(), 1 do
-    minimumNumberOfRequiredTabs = minimumNumberOfRequiredTabs + self:getMinimumNumberOfRequiredTabsForColumn(x)
+  if (self.parsedTable) then
+    return self.parsedTable:getTotalNumberOfRequiredTabs(true)
+  else
+    return 0
   end
-
-  return minimumNumberOfRequiredTabs
 
 end
 
@@ -150,7 +109,7 @@ end
 -- @treturn string[] The output rows
 --
 function ClientOutputTable:getOutputRows()
-  return self.renderer:getOutputRows()
+  return self.renderer:getOutputRows(self.parsedTable, self.configuration:getMaximumNumberOfTabs(), false)
 end
 
 ---
@@ -161,77 +120,7 @@ end
 -- @treturn string[] The output rows padded with tabs
 --
 function ClientOutputTable:getOutputRowsPaddedWithTabs(_tabNumber)
-  return self.renderer:getOutputRows(_tabNumber)
-end
-
-
----
--- Returns the required number of tabs for a specific column.
---
--- @tparam int _columnNumber The column number
---
--- @treturn int The required number of tabs for the column
---
-function ClientOutputTable:getNumberOfRequiredTabsForColumn(_columnNumber)
-
-  if (_columnNumber > self:getNumberOfColumns()) then
-    return 0
-  end
-
-  local numberOfRequiredTabs = 0
-  for _, row in ipairs(self.rows) do
-
-    local numberOfRequiredTabsForField = row[_columnNumber]:getNumberOfRequiredTabs()
-    if (numberOfRequiredTabsForField > numberOfRequiredTabs) then
-      numberOfRequiredTabs = numberOfRequiredTabsForField
-    end
-
-  end
-
-  return numberOfRequiredTabs
-
-end
-
----
--- Returns the minimun required number tabs for a specific column.
---
--- @tparam int _columnNumber The column number
---
--- @treturn int The minimum required number of tabs for the column
---
-function ClientOutputTable:getMinimumNumberOfRequiredTabsForColumn(_columnNumber)
-
-  if (_columnNumber > self:getNumberOfColumns()) then
-    return 0
-  end
-
-  local minimumNumberOfRequiredTabs = 0
-  for _, row in ipairs(self.rows) do
-
-    local minimumNumberOfRequiredTabsForField = row[_columnNumber]:getMinimumNumberOfRequiredTabs()
-    if (minimumNumberOfRequiredTabsForField > minimumNumberOfRequiredTabs) then
-      minimumNumberOfRequiredTabs = minimumNumberOfRequiredTabsForField
-    end
-
-  end
-
-  return minimumNumberOfRequiredTabs
-
-end
-
----
--- Returns the number of columns in this table.
---
--- @treturn int The number of columns in this table
---
-function ClientOutputTable:getNumberOfColumns()
-
-  if (#self.rows == 0) then
-    return 0
-  else
-    return #self.rows[1]
-  end
-
+  return self.renderer:getOutputRows(self.parsedTable, _tabNumber, true)
 end
 
 
