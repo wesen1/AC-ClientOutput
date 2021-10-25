@@ -86,13 +86,11 @@ function BaseClientOutput:getOutputRows()
 end
 
 ---
--- Returns the output rows padded with tabs until a specified tab number.
---
--- @tparam int _tabNumber The tab number
+-- Returns the output rows padded with tabs until the configured maxmimum number of tabs.
 --
 -- @treturn string[] The output rows padded with tabs
 --
-function BaseClientOutput:getOutputRowsPaddedWithTabs(_tabNumber)
+function BaseClientOutput:getOutputRowsPaddedWithTabs()
 end
 
 

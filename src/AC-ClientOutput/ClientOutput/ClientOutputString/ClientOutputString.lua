@@ -124,14 +124,12 @@ function ClientOutputString:getOutputRows()
 end
 
 ---
--- Returns the output rows padded with tabs until a specified tab number.
---
--- @tparam int _tabNumber The tab number
+-- Returns the output rows padded with tabs until the configured maxmimum number of tabs.
 --
 -- @treturn string[] The output rows padded with tabs
 --
-function ClientOutputString:getOutputRowsPaddedWithTabs(_tabNumber)
-  return self.splitter:getRows(_tabNumber)
+function ClientOutputString:getOutputRowsPaddedWithTabs()
+  return self.splitter:getRows(self.configuration:getMaximumNumberOfTabs())
 end
 
 
