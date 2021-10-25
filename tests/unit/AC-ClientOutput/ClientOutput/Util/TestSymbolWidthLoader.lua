@@ -141,7 +141,7 @@ function TestSymbolWidthLoader:testCanLoadFontConfig()
 
   for _, testValueSet in ipairs(self:canLoadFontConfigProvider()) do
 
-    -- Mock every of the font configs
+    -- Mock every font config
     for fontConfigName, _ in pairs(self.fontConfigPaths) do
       self:mockFontConfig(fontConfigName, testValueSet[fontConfigName])
     end

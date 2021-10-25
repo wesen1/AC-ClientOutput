@@ -281,7 +281,7 @@ function TestTabStopCalculator:canConvertTabNumberToPositionProvider()
     -- Tab number 0
     { ["tabWidth"] = 410, ["tabNumber"] = 0, ["expectedPosition"] = 0 },
     { ["tabWidth"] = 536, ["tabNumber"] = 0, ["expectedPosition"] = 0 },
-    { ["tabWidth"] = 247, ["tabNumber"] = 0, ["expectedPosition"] = 0 },
+    { ["tabWidth"] = 247, ["tabNumber"] = 0, ["expectedPosition"] = 0 }
   }
 
 end

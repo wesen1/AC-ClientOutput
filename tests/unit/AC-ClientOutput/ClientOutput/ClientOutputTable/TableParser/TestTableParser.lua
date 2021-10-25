@@ -100,11 +100,12 @@ function TestTableParser:testCanParseTable()
     local rawTable = dataSet["rawTable"]
     local expectedClientOutputs = dataSet["expectedClientOutputs"]
 
+    local parsedTableMock = self:getMock("AC-ClientOutput/ClientOutput/ClientOutputTable/TableParser/ParsedTable")
     local expectedCalls = self.dependencyMocks["ParsedTable"].__call
                                                              :should_be_called()
-                                                             :and_will_return(self.dependencyMocks["ParsedTable"])
+                                                             :and_will_return(parsedTableMock)
 
-    self:expectClientOutputCreations(expectedCalls, expectedClientOutputs)
+    self:expectClientOutputCreations(expectedCalls, expectedClientOutputs, parsedTableMock)
 
     expectedCalls:when(
       function()
@@ -182,12 +183,13 @@ end
 -- Private Methods
 
 ---
--- Creates the necessary mock expections to expect the creation of a list of ClientOutputs.
+-- Creates the necessary mock expectations to expect the creation of a list of ClientOutputs.
 --
 -- @tparam ExpectedCall _expectedCalls The expected calls chain
 -- @tparam table _expectedClientOutputs The expected ClientOutput configurations from a data set
+-- @tparam ParsedTable _parsedTableMock The ParsedTable mock to which the ClientOutputs are expected to be added
 --
-function TestTableParser:expectClientOutputCreations(_expectedCalls, _expectedClientOutputs)
+function TestTableParser:expectClientOutputCreations(_expectedCalls, _expectedClientOutputs, _parsedTableMock)
 
   -- Calculate the table's dimensions
   local numberOfRows = #_expectedClientOutputs
@@ -211,8 +213,8 @@ function TestTableParser:expectClientOutputCreations(_expectedCalls, _expectedCl
 
     -- ParsedTable:addRow should be called one time per row
     _expectedCalls:and_then(
-      self.dependencyMocks["ParsedTable"].addRow
-                                         :should_be_called()
+      _parsedTableMock.addRow
+                      :should_be_called()
     )
 
     for x = 1, numberOfColumns, 1 do
@@ -226,8 +228,8 @@ function TestTableParser:expectClientOutputCreations(_expectedCalls, _expectedCl
 
       -- The ClientOutput should be added to the parsed table
       _expectedCalls:and_then(
-        self.dependencyMocks["ParsedTable"].addRowField
-                                           :should_be_called_with(clientOutputMock)
+        _parsedTableMock.addRowField
+                        :should_be_called_with(clientOutputMock)
       )
 
     end
@@ -249,12 +251,16 @@ function TestTableParser:expectClientOutputCreation(_expectedCalls, _y, _x, _val
   local fieldConfigurationMock = {}
 
   local isClientOutputTable = (_type == "table")
-  local mockClassName
+  local mockDependencyId, mockClassPath
   if (_type == "string") then
-    mockClassName = "ClientOutputString"
+    mockDependencyId = "ClientOutputString"
+    mockClassPath = "AC-ClientOutput.ClientOutput.ClientOutputString.ClientOutputString"
   elseif (isClientOutputTable) then
-    mockClassName = "ClientOutputTable"
+    mockDependencyId = "ClientOutputTable"
+    mockClassPath = "AC-ClientOutput.ClientOutput.ClientOutputTable.ClientOutputTable"
   end
+
+  local clientOutputMock = self:getMock(mockClassPath)
 
   _expectedCalls:and_then(
 
@@ -265,21 +271,21 @@ function TestTableParser:expectClientOutputCreation(_expectedCalls, _y, _x, _val
   ):and_then(
 
     -- A ClientOutputString for the field should be created
-    self.dependencyMocks[mockClassName].__call
-                                       :should_be_called_with(
-                                         self.symbolWidthLoaderMock,
-                                         self.tabStopCalculatorMock,
-                                         fieldConfigurationMock
-                                       )
-                                       :and_will_return(self.dependencyMocks[mockClassName])
+    self.dependencyMocks[mockDependencyId].__call
+                                          :should_be_called_with(
+                                            self.symbolWidthLoaderMock,
+                                            self.tabStopCalculatorMock,
+                                            fieldConfigurationMock
+                                          )
+                                          :and_will_return(clientOutputMock)
   ):and_then(
 
     -- The expected value should be parsed into the ClientOutputString
-    self.dependencyMocks[mockClassName].parse
-                                       :should_be_called_with(self.mach.match(_value))
+    clientOutputMock.parse
+                    :should_be_called_with(self.mach.match(_value))
   )
 
-  return self.dependencyMocks[mockClassName]
+  return clientOutputMock
 
 end
 
