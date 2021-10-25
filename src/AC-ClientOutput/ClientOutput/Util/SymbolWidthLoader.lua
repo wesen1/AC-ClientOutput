@@ -31,7 +31,7 @@ SymbolWidthLoader.fontConfig = nil
 -- @tparam string _fontConfigFileName The font config file name
 --
 function SymbolWidthLoader:new(_fontConfigFileName)
-  self.fontConfig = require "AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName
+  self.fontConfig = require("AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName)
 end
 
 
