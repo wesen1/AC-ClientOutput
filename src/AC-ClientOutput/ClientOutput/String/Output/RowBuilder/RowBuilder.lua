@@ -5,24 +5,18 @@
 -- @license MIT
 --
 
-local RowDimensionsCalculator = require("AC-ClientOutput/ClientOutput/ClientOutputString/RowBuilder/RowDimensionsCalculator")
-local StringWidthCalculator = require("AC-ClientOutput/ClientOutput/ClientOutputString/StringWidthCalculator")
-local WidthCacher = require("AC-ClientOutput/ClientOutput/ClientOutputString/RowBuilder/WidthCacher")
+local Object = require "classic"
+local RowDimensionsCalculator = require "AC-ClientOutput.ClientOutput.String.Output.Row.DimensionsCalculator"
+local StringWidthCalculator = require "AC-ClientOutput.ClientOutput.String.StringWidthCalculator"
+local WidthCacher = require "AC-ClientOutput.ClientOutput.String.Output.Row.WidthCacher"
 
 ---
 -- Builds rows from a parent ClientOutputString's string.
 --
 -- @type RowBuilder
 --
-local RowBuilder = {}
+local RowBuilder = Object:extend()
 
-
----
--- The parent ClientOutputString
---
--- @tfield ClientOutputString parentClientOutputString
---
-RowBuilder.parentClientOutputString = nil
 
 ---
 -- The tab stop calculator
@@ -88,23 +82,17 @@ RowBuilder.lastParsedPosition = nil
 -- RowBuilder constructor.
 -- This is the __call metamethod.
 --
--- @tparam ClientOutputString _parentClientOutputString The parent ClientOutputString
 -- @tparam SymbolWidthLoader _symbolWidthLoader The SymbolWidthLoader
 -- @tparam TabStopCalculator _tabStopCalculator The TabStopCalculator
 --
 -- @treturn RowBuilder The RowBuilder instance
 --
-function RowBuilder:__construct(_parentClientOutputString, _symbolWidthLoader, _tabStopCalculator)
+function RowBuilder:__construct(_symbolWidthLoader, _tabStopCalculator)
 
-  local instance = setmetatable({}, {__index = RowBuilder})
-
-  instance.parentClientOutputString = _parentClientOutputString
-  instance.tabStopCalculator = _tabStopCalculator
-  instance.stringWidthCalculator = StringWidthCalculator(_symbolWidthLoader, _tabStopCalculator)
-  instance.rowDimensionsCalculator = RowDimensionsCalculator(1)
-  instance.widthCacher = WidthCacher(2)
-
-  return instance
+  self.tabStopCalculator = _tabStopCalculator
+  self.stringWidthCalculator = StringWidthCalculator(_symbolWidthLoader, _tabStopCalculator)
+  self.rowDimensionsCalculator = RowDimensionsCalculator(1)
+  self.widthCacher = WidthCacher(2)
 
 end
 
@@ -291,10 +279,6 @@ function RowBuilder:initializeNextRowWidth()
   end
 
 end
-
-
--- When RowBuilder() is called, call the __construct method
-setmetatable(RowBuilder, {__call = RowBuilder.__construct})
 
 
 return RowBuilder

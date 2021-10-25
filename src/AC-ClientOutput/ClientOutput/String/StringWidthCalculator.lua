@@ -1,16 +1,18 @@
 ---
 -- @author wesen
--- @copyright 2019 wesen <wesen-ac@web.de>
+-- @copyright 2019-2020 wesen <wesen-ac@web.de>
 -- @release 0.1
 -- @license MIT
 --
 
+local Object = require "classic"
+
 ---
--- Calculates the width of strings in the clients consoles.
+-- Calculates the width that strings have in a AssaultCube client's console.
 --
 -- @type StringWidthCalculator
 --
-local StringWidthCalculator = {}
+local StringWidthCalculator = Object:extend()
 
 
 ---
@@ -39,22 +41,14 @@ StringWidthCalculator.tabStopCalculator = nil
 
 ---
 -- StringWidthCalculator constructor.
--- This is the __call metamethod.
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
 --
--- @treturn StringWidthCalculator The StringWidthCalculator instance
---
-function StringWidthCalculator:__construct(_symbolWidthLoader, _tabStopCalculator)
-
-  local instance = setmetatable({}, {__index = StringWidthCalculator})
-  instance.symbolWidthLoader = _symbolWidthLoader
-  instance.tabStopCalculator = _tabStopCalculator
-  instance.width = 0
-
-  return instance
-
+function StringWidthCalculator:new(_symbolWidthLoader, _tabStopCalculator)
+  self.symbolWidthLoader = _symbolWidthLoader
+  self.tabStopCalculator = _tabStopCalculator
+  self.width = 0
 end
 
 
@@ -143,10 +137,6 @@ function StringWidthCalculator:getStringWidth(_string)
   self:addString(_string)
   return self.width
 end
-
-
--- When StringWidthCalculator() is called, call the __construct method
-setmetatable(StringWidthCalculator, {__call = StringWidthCalculator.__construct})
 
 
 return StringWidthCalculator

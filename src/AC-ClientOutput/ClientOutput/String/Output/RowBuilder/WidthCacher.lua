@@ -5,12 +5,14 @@
 -- @license MIT
 --
 
+local Object = require "classic"
+
 ---
 -- Handles caching of widths.
 --
 -- @type WidthCacher
 --
-local WidthCacher = {}
+local WidthCacher = Object:extend()
 
 
 ---
@@ -44,22 +46,16 @@ WidthCacher.maximumTotalWidthHistorySize = 0
 WidthCacher.maximumTotalWidthHistorySizeReached = nil
 
 
--- Metamethods
-
 ---
 -- WidthCacher constructor.
--- This is the __call metamethod.
 --
 -- @tparam int _maximumTotalWidthHistorySize The maximum size for the totalWidthHistory
 --
 -- @treturn WidthCacher The WidthCacher instance
 --
-function WidthCacher:__construct(_maximumTotalWidthHistorySize)
-  local instance = setmetatable({}, {__index = WidthCacher})
-  instance.maximumTotalWidthHistorySize = _maximumTotalWidthHistorySize
-  instance:reset()
-
-  return instance
+function WidthCacher:new(_maximumTotalWidthHistorySize)
+  self.maximumTotalWidthHistorySize = _maximumTotalWidthHistorySize
+  self:reset()
 end
 
 
@@ -160,10 +156,6 @@ function WidthCacher:getWidthAtPosition(_position)
   end
 
 end
-
-
--- When WidthCacher() is called, call the __construct method
-setmetatable(WidthCacher, {__call = WidthCacher.__construct})
 
 
 return WidthCacher

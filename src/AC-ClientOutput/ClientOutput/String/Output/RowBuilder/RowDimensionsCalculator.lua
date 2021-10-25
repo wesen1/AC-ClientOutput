@@ -5,12 +5,14 @@
 -- @license MIT
 --
 
+local Object = require "classic"
+
 ---
 -- Calculates the start and end positions of string rows based on a StringParser instance.
 --
 -- @type RowDimensionsCalculator
 --
-local RowDimensionsCalculator = {}
+local RowDimensionsCalculator = Object:extend()
 
 
 ---
@@ -21,21 +23,13 @@ local RowDimensionsCalculator = {}
 RowDimensionsCalculator.minimumRowLength = nil
 
 
--- Metamethods
-
 ---
 -- RowDimensionsCalculator constructor.
--- This is the __call metamethod.
 --
 -- @tparam int _minimumRowLength The minimum row length
 --
--- @treturn RowDimensionsCalculator The RowDimensionsCalculator instance
---
-function RowDimensionsCalculator:__construct(_minimumRowLength)
-  local instance = setmetatable({}, {__index = RowDimensionsCalculator})
-  instance.minimumRowLength = _minimumRowLength
-
-  return instance
+function RowDimensionsCalculator:new(_minimumRowLength)
+  self.minimumRowLength = _minimumRowLength
 end
 
 
@@ -112,22 +106,18 @@ end
 --
 function RowDimensionsCalculator:calculateNextRowEndPosition(_parsedString, _maximumCharacterNumber)
 
-  if (_parsedString:getLineSplitCharacters() == nil) then
-    -- No line split characters defined, split the string at the last possible character
-    return _maximumCharacterNumber
-  else
-
+  if (_parsedString:containsLineSplitCharacters()) then
     local lineSplitCharacterPosition = _parsedString:getLastLineSplitCharacterPositionBefore(_maximumCharacterNumber)
     if (lineSplitCharacterPosition ~= nil) then
       return _parsedString:getLastNonWhitespacePositionBefore(lineSplitCharacterPosition)
     end
+
+  else
+    -- No line split characters defined, split the string at the last possible character
+    return _maximumCharacterNumber
   end
 
 end
-
-
--- When RowDimensionsCalculator() is called, call the __construct method
-setmetatable(RowDimensionsCalculator, {__call = RowDimensionsCalculator.__construct})
 
 
 return RowDimensionsCalculator
