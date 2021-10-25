@@ -8,9 +8,9 @@
 ---
 -- Returns the output rows for a ClientOutputTable.
 --
--- @type ClientOutputTableRenderer
+-- @type TableRenderer
 --
-local ClientOutputTableRenderer = {}
+local TableRenderer = {}
 
 
 ---
@@ -18,21 +18,21 @@ local ClientOutputTableRenderer = {}
 --
 -- @tfield ClientOutputTable clientOutputTable
 --
-ClientOutputTableRenderer.parentClientOutputTable = nil
+TableRenderer.parentClientOutputTable = nil
 
 
 -- Metamethods
 
 ---
--- ClientOutputTableRenderer constructor.
+-- TableRenderer constructor.
 -- This is the __call metamethod.
 --
 -- @tparam ClientOutputTable _parentClientOutputTable The parent ClientOutputTable
 --
--- @treturn ClientOutputTableRenderer The ClientOutputTableRenderer instance
+-- @treturn TableRenderer The TableRenderer instance
 --
-function ClientOutputTableRenderer:__construct(_parentClientOutputTable)
-  local instance = setmetatable({}, {__index = ClientOutputTableRenderer})
+function TableRenderer:__construct(_parentClientOutputTable)
+  local instance = setmetatable({}, {__index = TableRenderer})
   instance.parentClientOutputTable = _parentClientOutputTable
 
   return instance
@@ -48,7 +48,7 @@ end
 --
 -- @treturn string[]|ClientOutputString[] The row output strings
 --
-function ClientOutputTableRenderer:getOutputRows(_padTabNumber)
+function TableRenderer:getOutputRows(_padTabNumber)
 
   self:calculateNumbersOfTabsPerColumn()
 
@@ -72,7 +72,7 @@ end
 -- Calculates the numbers of tabs to use per column.
 -- The result is saved in the numbersOfTabsPerColumn attribute.
 --
-function ClientOutputTableRenderer:calculateNumbersOfTabsPerColumn()
+function TableRenderer:calculateNumbersOfTabsPerColumn()
 
   local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
   local remainingNumberOfTabs = self.parentClientOutputTable:getConfiguration():getMaximumNumberOfTabs()
@@ -129,7 +129,7 @@ end
 --
 -- @treturn table The table with converted sub tables
 --
-function ClientOutputTableRenderer:convertSubTablesToRows(_padTabNumber)
+function TableRenderer:convertSubTablesToRows(_padTabNumber)
 
   local outputTable = {}
 
@@ -162,7 +162,7 @@ end
 --
 -- @treturn string[][] The table with combined sub table rows
 --
-function ClientOutputTableRenderer:mergeSubRows(_outputTable)
+function TableRenderer:mergeSubRows(_outputTable)
 
   local outputTable = {}
   local mainTableInsertIndex = 1
@@ -221,7 +221,7 @@ end
 --
 -- @treturn table The output table with added tabs
 --
-function ClientOutputTableRenderer:addTabsToFields(_outputTable, _padTabNumber)
+function TableRenderer:addTabsToFields(_outputTable, _padTabNumber)
 
   local outputTable = {}
   local padTabNumberIsDefined = (_padTabNumber ~= nil)
@@ -266,7 +266,7 @@ end
 --
 -- @treturn string[]|ClientOutputString[] The output rows
 --
-function ClientOutputTableRenderer:generateRowStrings(_outputTable, _padTabNumber)
+function TableRenderer:generateRowStrings(_outputTable, _padTabNumber)
 
   local rowOutputStrings = {}
   for y, row in ipairs(_outputTable) do
@@ -278,8 +278,8 @@ function ClientOutputTableRenderer:generateRowStrings(_outputTable, _padTabNumbe
 end
 
 
--- When ClientOutputTableRenderer() is called, call the __construct method
-setmetatable(ClientOutputTableRenderer, {__call = ClientOutputTableRenderer.__construct})
+-- When TableRenderer() is called, call the __construct method
+setmetatable(TableRenderer, {__call = TableRenderer.__construct})
 
 
-return ClientOutputTableRenderer
+return TableRenderer
