@@ -75,7 +75,7 @@ end
 function ClientOutputTableRenderer:calculateNumbersOfTabsPerColumn()
 
   local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
-  local remainingNumberOfTabs = self.parentClientOutputTable:getMaximumNumberOfTabs()
+  local remainingNumberOfTabs = self.parentClientOutputTable:getConfiguration():getMaximumNumberOfTabs()
 
   self.numbersOfTabsPerColumn = {}
   for x = 1, numberOfColumns, 1 do
