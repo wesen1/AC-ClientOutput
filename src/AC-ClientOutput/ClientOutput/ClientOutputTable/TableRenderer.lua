@@ -6,7 +6,7 @@
 --
 
 ---
--- Returns the output rows for a ClientOutputTable.
+-- Returns the output rows for a ParsedTable.
 --
 -- @type TableRenderer
 --
@@ -14,11 +14,18 @@ local TableRenderer = {}
 
 
 ---
--- The parent ClientOutputTable
+-- The numbers of tabs per column for the current ParsedTable
 --
--- @tfield ClientOutputTable clientOutputTable
+-- @tfield int|nil numbersOfTabsPerColumn
 --
-TableRenderer.parentClientOutputTable = nil
+TableRenderer.numbersOfTabsPerColumn = nil
+
+---
+-- The rendered row fields for the current ParsedTable
+--
+-- @tfield string[]|nil rows
+--
+TableRenderer.rows = nil
 
 
 -- Metamethods
@@ -27,14 +34,10 @@ TableRenderer.parentClientOutputTable = nil
 -- TableRenderer constructor.
 -- This is the __call metamethod.
 --
--- @tparam ClientOutputTable _parentClientOutputTable The parent ClientOutputTable
---
 -- @treturn TableRenderer The TableRenderer instance
 --
-function TableRenderer:__construct(_parentClientOutputTable)
+function TableRenderer:__construct()
   local instance = setmetatable({}, {__index = TableRenderer})
-  instance.parentClientOutputTable = _parentClientOutputTable
-
   return instance
 end
 
@@ -42,26 +45,24 @@ end
 -- Public Methods
 
 ---
--- Returns the row output strings for the parent ClientOutputTable.
+-- Returns the output rows for a ParsedTable.
 --
--- @tparam int|nil _padTabNumber The pad tab number (optional)
+-- @tparam ParsedTable _parsedTable The parsed table
+-- @tparam int _maximumNumberOfTabs The maximum number of tabs avaiable for each row
+-- @tparam bool _padWithTabs Whether to pad the rows with tabs until the maximum number of tabs (optional)
 --
--- @treturn string[]|ClientOutputString[] The row output strings
+-- @treturn string[] The row output strings
 --
-function TableRenderer:getOutputRows(_padTabNumber)
+function TableRenderer:getOutputRows(_parsedTable, _maximumNumberOfTabs, _padWithTabs)
 
-  self:calculateNumbersOfTabsPerColumn()
+  self.rows = {}
+  self.numbersOfTabsPerColumn = _parsedTable:getNumberOfTabsPerColumn(_maximumNumberOfTabs)
 
-  -- Replace the sub tables with the result of getRowStrings()
-  local outputTable = self:convertSubTablesToRows(_padTabNumber)
+  self:initializeFields(_parsedTable, _padWithTabs)
+  self:mergeSubRows()
+  self:fillEmptyFieldsWithTabs(_parsedTable, _padWithTabs)
 
-  -- Merge the sub rows into the main table
-  outputTable = self:mergeSubRows(outputTable)
-
-  -- Add the tabs to the fields
-  outputTable = self:addTabsToFields(outputTable, _padTabNumber)
-
-  return self:generateRowStrings(outputTable, _padTabNumber)
+  return self:generateRowStrings()
 
 end
 
@@ -69,207 +70,113 @@ end
 -- Private Methods
 
 ---
--- Calculates the numbers of tabs to use per column.
--- The result is saved in the numbersOfTabsPerColumn attribute.
+-- Initializes the fields with the results of getOutputRows() of each ParsedTable field.
 --
-function TableRenderer:calculateNumbersOfTabsPerColumn()
+-- @tparam ParsedTable _parsedTable The parsed table
+-- @tparam bool _padWithTabs Whether to pad the rows with tabs until the maximum number of tabs (optional)
+--
+function TableRenderer:initializeFields(_parsedTable, _padWithTabs)
 
-  local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
-  local remainingNumberOfTabs = self.parentClientOutputTable:getConfiguration():getMaximumNumberOfTabs()
+  local numberOfColumns = _parsedTable:getNumberOfColumns()
+  for y, tableRow in ipairs(_parsedTable:getRows()) do
 
-  self.numbersOfTabsPerColumn = {}
-  for x = 1, numberOfColumns, 1 do
-
-    local numberOfRequiredTabsForColumn = self.parentClientOutputTable:getNumberOfRequiredTabsForColumn(x)
-
-    self.numbersOfTabsPerColumn[x] = numberOfRequiredTabsForColumn
-    remainingNumberOfTabs = remainingNumberOfTabs - numberOfRequiredTabsForColumn
-
-  end
-
-  if (remainingNumberOfTabs < 0) then
-
-    local minimumNumbersOfTabsPerColumn = {}
+    self.rows[y] = {}
     for x = 1, numberOfColumns, 1 do
-      minimumNumbersOfTabsPerColumn[x] = self.parentClientOutputTable:getMinimumNumberOfRequiredTabsForColumn(x)
-    end
 
-    while (remainingNumberOfTabs < 0) do
-
-      -- Find the column with the biggest distance to the minimum number of required tabs
-      local shrinkColumnNumber
-      local maximumNumberOfRemovableTabs = 0
-      for x = 1, numberOfColumns, 1 do
-
-        local numberOfRemovableTabs = self.numbersOfTabsPerColumn[x] - minimumNumbersOfTabsPerColumn[x]
-        if (numberOfRemovableTabs > maximumNumberOfRemovableTabs) then
-          maximumNumberOfRemovableTabs = numberOfRemovableTabs
-          shrinkColumnNumber = x
-        end
-
-      end
-
-      if (shrinkColumnNumber == nil) then
-        break
+      tableRow[x]:getConfiguration():changeMaximumNumberOfTabs(self.numbersOfTabsPerColumn[x])
+      if (_padWithTabs or x < numberOfColumns) then
+        self.rows[y][x] = tableRow[x]:getOutputRowsPaddedWithTabs()
       else
-        self.numbersOfTabsPerColumn[shrinkColumnNumber] = self.numbersOfTabsPerColumn[shrinkColumnNumber] - 1
-        remainingNumberOfTabs = remainingNumberOfTabs + 1
+        self.rows[y][x] = tableRow[x]:getOutputRows()
       end
 
     end
 
   end
-
-end
-
----
--- Replaces sub tables by the row output strings of the sub table.
---
--- @tparam int|nil _padTabNumber The pad tab number (optional)
---
--- @treturn table The table with converted sub tables
---
-function TableRenderer:convertSubTablesToRows(_padTabNumber)
-
-  local outputTable = {}
-
-  local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
-  local padTabNumberIsDefined = (_padTabNumber ~= nil)
-  for y, tableRow in ipairs(self.parentClientOutputTable:getRows()) do
-
-    outputTable[y] = {}
-    for x, tableField in ipairs(tableRow) do
-
-      tableField:getConfiguration():changeMaximumNumberOfTabs(self.numbersOfTabsPerColumn[x])
-      if (padTabNumberIsDefined or x < numberOfColumns) then
-        outputTable[y][x] = tableField:getOutputRowsPaddedWithTabs(self.numbersOfTabsPerColumn[x])
-      else
-        outputTable[y][x] = tableField:getOutputRows()
-      end
-
-    end
-
-  end
-
-  return outputTable
 
 end
 
 ---
 -- Combines the rows of the sub tables with the total table.
+-- This is done by creating an entirely new table.
 --
--- @tparam table _outputTable The output table with converted sub tables
---
--- @treturn string[][] The table with combined sub table rows
---
-function TableRenderer:mergeSubRows(_outputTable)
+function TableRenderer:mergeSubRows()
 
-  local outputTable = {}
   local mainTableInsertIndex = 1
 
-  for _, tableRow in ipairs(_outputTable) do
+  local mergedRows = {}
+  for _, tableRow in ipairs(self.rows) do
 
-    outputTable[mainTableInsertIndex] = {}
+    mergedRows[mainTableInsertIndex] = {}
 
-    local maximumMainTableInsertIndexForTable = mainTableInsertIndex
+    local maximumMainTableInsertIndexForRow = mainTableInsertIndex
     for x, tableField in ipairs(tableRow) do
 
-      if (type(tableField) == "table") then
-        -- The field contains sub rows
-        local mainTableInsertIndexForTable = mainTableInsertIndex
-        local isFirstSubRow = true
+      local mainTableInsertIndexForSubTable = mainTableInsertIndex
+      local isFirstSubRow = true
 
-        for _, subRow in ipairs(tableField) do
+      for _, subRow in ipairs(tableField) do
 
-          if (isFirstSubRow) then
-            isFirstSubRow = false
-          else
-            mainTableInsertIndexForTable = mainTableInsertIndexForTable + 1
-          end
+        if (isFirstSubRow) then
+          isFirstSubRow = false
+        else
 
-          -- Create the additional row if it doesn't exist
-          if (not outputTable[mainTableInsertIndexForTable]) then
-            outputTable[mainTableInsertIndexForTable] = {}
-          end
-
-          outputTable[mainTableInsertIndexForTable][x] = subRow
-
-          if (mainTableInsertIndexForTable > maximumMainTableInsertIndexForTable) then
-            maximumMainTableInsertIndexForTable = mainTableInsertIndexForTable
+          mainTableInsertIndexForSubTable = mainTableInsertIndexForSubTable + 1
+          if (mainTableInsertIndexForSubTable > maximumMainTableInsertIndexForRow) then
+            mergedRows[mainTableInsertIndexForSubTable] = {}
+            maximumMainTableInsertIndexForRow = mainTableInsertIndexForSubTable
           end
 
         end
 
-      else
-        outputTable[mainTableInsertIndex][x] = tableField
+        mergedRows[mainTableInsertIndexForSubTable][x] = subRow
+
       end
+
     end
 
-    mainTableInsertIndex = maximumMainTableInsertIndexForTable + 1
+    mainTableInsertIndex = maximumMainTableInsertIndexForRow + 1
 
   end
 
-  return outputTable
+  self.rows = mergedRows
 
 end
 
 ---
--- Adds the tabs to all fields of the table.
+-- Fills all empty fields with tabs.
 --
--- @tparam table _outputTable The output table
--- @tparam int|nil _padTabNumber The pad tab number (optional)
+-- @tparam ParsedTable _parsedTable The parsed table
+-- @tparam bool _padWithTabs Whether to pad the rows with tabs until the maximum number of tabs (optional)
 --
--- @treturn table The output table with added tabs
---
-function TableRenderer:addTabsToFields(_outputTable, _padTabNumber)
+function TableRenderer:fillEmptyFieldsWithTabs(_parsedTable, _padWithTabs)
 
-  local outputTable = {}
-  local padTabNumberIsDefined = (_padTabNumber ~= nil)
-
-  if (_outputTable) then
-
-    outputTable = _outputTable
-
-    local numberOfColumns = #outputTable[1]
+  local numberOfColumns = _parsedTable:getNumberOfColumns()
+  for y, tableRow in ipairs(self.rows) do
     for x = 1, numberOfColumns, 1 do
 
-      local numberOfTabsForColumn = self.numbersOfTabsPerColumn[x]
-      for y, tableRow in ipairs(outputTable) do
-
-        local field = tableRow[x]
-
-        if (field == nil) then
-          if (padTabNumberIsDefined or x < numberOfColumns) then
-            field = string.rep("\t", numberOfTabsForColumn)
-          else
-            field = ""
-          end
+      if (tableRow[x] == nil) then
+        if (_padWithTabs or x < numberOfColumns) then
+          self.rows[y][x] = string.rep("\t", self.numbersOfTabsPerColumn[x])
+        else
+          self.rows[y][x] = ""
         end
-
-        outputTable[y][x] = field
-
       end
+
     end
-
   end
-
-  return outputTable
 
 end
 
 ---
--- Generates the row strings from a output table.
--- The output table must be one dimensional and may not contain empty fields.
+-- Generates and returns the row strings from the current rows.
 --
--- @tparam table[] _outputTable The output table
--- @tparam int|nil _padTabNumber The pad tab number (optional)
+-- @treturn string[] The row strings
 --
--- @treturn string[]|ClientOutputString[] The output rows
---
-function TableRenderer:generateRowStrings(_outputTable, _padTabNumber)
+function TableRenderer:generateRowStrings()
 
   local rowOutputStrings = {}
-  for y, row in ipairs(_outputTable) do
+  for y, row in ipairs(self.rows) do
     rowOutputStrings[y] = table.concat(row, "")
   end
 
