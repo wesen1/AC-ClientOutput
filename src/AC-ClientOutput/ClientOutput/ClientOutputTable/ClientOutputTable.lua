@@ -113,14 +113,12 @@ function ClientOutputTable:getOutputRows()
 end
 
 ---
--- Returns the output rows padded with tabs until a specified tab number.
---
--- @tparam int _tabNumber The tab number
+-- Returns the output rows padded with tabs until the configured maxmimum number of tabs.
 --
 -- @treturn string[] The output rows padded with tabs
 --
-function ClientOutputTable:getOutputRowsPaddedWithTabs(_tabNumber)
-  return self.renderer:getOutputRows(self.parsedTable, _tabNumber, true)
+function ClientOutputTable:getOutputRowsPaddedWithTabs()
+  return self.renderer:getOutputRows(self.parsedTable, self.configuration:getMaximumNumberOfTabs(), true)
 end
 
 
