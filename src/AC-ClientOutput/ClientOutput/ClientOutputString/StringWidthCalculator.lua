@@ -129,7 +129,7 @@ end
 -- Resets the width to its initial value.
 --
 function StringWidthCalculator:reset()
-  self.width = -1
+  self.width = 0
 end
 
 ---

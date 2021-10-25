@@ -175,6 +175,32 @@ function ClientOutputFactory:changeFontConfig(_fontConfigFileName)
   self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
 end
 
+---
+-- Generates and returns a ClientOutputConfiguration instance.
+--
+-- @tparam ClientOutputConfiguration _configurationClass The configuration class type to return an instance of
+-- @tparam ClientOutputConfiguration|table _configuration The custom configuration to add
+--
+-- @treturn ClientOutputConfiguration The generated ClientOutputConfiguration instance
+--
+function ClientOutputFactory:generateClientOutputConfiguration(_configurationClass, _configuration)
+
+  if (type(_configuration) == "table" and type(_configuration.is) == "function" and _configuration.is(_configurationClass)) then
+    -- The given configuration already is a ClientOutputConfiguration instance
+    return _configuration
+  end
+
+  -- Create the ClientOutputConfiguration instance for the ClientOutputString
+  local configuration = _configurationClass(self.tabStopCalculator)
+  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
+  if (type(_configuration) == "table") then
+    configuration:parse(_configuration)
+  end
+
+  return configuration
+
+end
+
 
 -- When ClientOutputFactory() is called, call the __construct method
 setmetatable(ClientOutputFactory, {__call = ClientOutputFactory.__construct})
