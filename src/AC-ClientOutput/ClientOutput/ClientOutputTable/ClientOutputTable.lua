@@ -85,18 +85,24 @@ function ClientOutputTable:parse(_table)
     self.rows[y] = {}
 
     if (type(row) ~= "table") then
-      self.rows[y][1] = ClientOutputFactory.getInstance():getClientOutputString(row)
-      self.rows[y][1]:configure(self.configuration:getConfigurationForField(y, 1, false))
+      self.rows[y][1] = ClientOutputFactory.getInstance():getClientOutputString(
+        row,
+        self.configuration:getConfigurationForField(y, 1, false)
+      )
     else
 
       for x, field in ipairs(row) do
 
         if (type(field) == "table") then
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(field)
-          self.rows[y][x]:configure(self.configuration:getConfigurationForField(y, x, true))
+          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(
+            field,
+            self.configuration:getConfigurationForField(y, x, true)
+          )
         else
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(tostring(field))
-          self.rows[y][x]:configure(self.configuration:getConfigurationForField(y, x, false))
+          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(
+            tostring(field),
+            self.configuration:getConfigurationForField(y, x, false)
+          )
         end
 
       end
@@ -226,7 +232,6 @@ function ClientOutputTable:getNumberOfColumns()
     return #self.rows[1]
   end
 
-end
 end
 
 

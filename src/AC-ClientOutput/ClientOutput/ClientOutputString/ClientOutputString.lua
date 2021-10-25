@@ -101,8 +101,8 @@ end
 -- @treturn int The number of required tabs
 --
 function ClientOutputString:getNumberOfRequiredTabs()
-  local stringWidthCalculator = StringWidthCalculator(self.symbolWidthLoader, self.tabStopCalculator)
-  return self.tabStopCalculator:getNextTabStopNumber(stringWidthCalculator:getStringWidth(self.string))
+  self.stringWidthCalculator:reset()
+  return self.tabStopCalculator:getNextTabStopNumber(self.stringWidthCalculator:getStringWidth(self.string))
 end
 
 ---
