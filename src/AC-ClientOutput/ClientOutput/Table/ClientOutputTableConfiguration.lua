@@ -46,6 +46,7 @@ function ClientOutputTableConfiguration:__construct(_tabStopCalculator)
 
   instance.allowedGroupValueNames = { "newLineIndent", "lineSplitCharacters" }
   instance.groupConfigurations = {}
+  instance.minimumSpaceBetweenColumns = 0
 
   return instance
 end
@@ -62,6 +63,10 @@ end
 function ClientOutputTableConfiguration:parse(_configuration, _isDefaultConfiguration)
 
   ClientOutputConfiguration.parse(self, _configuration, _isDefaultConfiguration)
+
+  if (_configuration["minimumSpaceBetweenColumns"] ~= nil) then
+    self.minimumSpaceBetweenColumns = tonumber(_configuration["minimumSpaceBetweenColumns"])
+  end
 
   -- Parse row configurations
   if (type(_configuration["rows"]) == "table") then

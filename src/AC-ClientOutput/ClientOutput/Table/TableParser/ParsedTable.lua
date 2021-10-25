@@ -9,6 +9,9 @@
 -- Contains the parsed table for a ClientOutputTable.
 -- Also provides methods to fetch information about the parsed table.
 --
+-- The intended use is to first add all rows and row fields and then fetch information about the
+-- parsed table.
+--
 -- @type ParsedTable
 --
 local ParsedTable = {}
@@ -70,6 +73,7 @@ end
 
 ---
 -- Adds a new row to this ParsedTable.
+-- Must be called once before adding the first row field.
 --
 function ParsedTable:addRow()
   self.currentRowNumber = self.currentRowNumber + 1
@@ -95,13 +99,7 @@ end
 -- @treturn int The number of columns
 --
 function ParsedTable:getNumberOfColumns()
-
-  if (self.currentRowNumber == 0) then
-    return 0
-  else
-    return self.currentFieldNumber
-  end
-
+  return self.currentFieldNumber
 end
 
 ---
@@ -113,6 +111,15 @@ end
 -- @treturn int The required number of tabs for the column
 --
 function ParsedTable:getNumberOfRequiredTabsForColumn(_columnNumber, _getMinimumNumber)
+
+  --[[
+  function ClientOutputTable:getNumberOfRequiredTabs(_minimumSpaceBetweenColumns)
+    numberOfRequiredTabs = numberOfRequiredTabs + self:getNumberOfRequiredTabsForColumn(x, _minimumSpaceBetweenColumns)
+
+    local numberOfRequiredTabsForField = row[_columnNumber]:getNumberOfRequiredTabs(self.minimumSpaceBetweenFields)
+
+  --]]
+
 
   if (_columnNumber > self:getNumberOfColumns()) then
     return 0
