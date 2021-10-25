@@ -63,14 +63,7 @@ end
 -- @tparam List The corresponding substring position list
 --
 function ListCollection:getSubstringPositionList(_identifier)
-
-  local substringPositionList = self.substringPositionLists[_identifier]
-  if (substringPositionList == nil) then
-    return self.nullSubstringPositionList
-  else
-    return substringPositionList
-  end
-
+  return self.substringPositionLists[_identifier] or self.nullSubstringPositionList
 end
 
 

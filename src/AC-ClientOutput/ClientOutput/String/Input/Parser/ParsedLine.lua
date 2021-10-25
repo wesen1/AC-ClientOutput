@@ -103,13 +103,6 @@ function ParsedLine:isWhitespaceStartOrEndPosition(_stringPosition)
 end
 
 ---
--- @deprecated
---
-function ParsedLine:isAtWhitespaceGroupBorderPosition(_stringPosition)
-  return self:isWhitespaceStartOrEndPosition(_stringPosition)
-end
-
----
 -- Returns the last color before a specified string position.
 --
 -- @tparam int _stringPosition The string position
@@ -134,14 +127,17 @@ end
 --
 -- @tparam int _stringPosition The string position
 --
--- @treturn int The last line split character position or nil if there is no line split character before the given string position
+-- @treturn int|nil The last line split character position or nil if there is no line split character before the given string position
 --
 function ParsedLine:getLastLineSplitCharacterPositionBefore(_stringPosition)
 
-  local substringPosition = self.substringPositionListCollection
-                                :getSubstringPositionList("lineSplitCharacters")
-                                :getLastSubstringPositionBefore(_stringPosition)
+  local stringPosition = self.substringPositionListCollection
+                             :getSubstringPositionList("lineSplitCharacters")
+                             :getLastUncontainedStringPositionBefore(_stringPosition)
 
+  return stringPosition + 1
+
+  -- TODO: Fix this method
   if (substringPosition) then
     return substringPosition:getEndPosition()
   end
@@ -161,13 +157,6 @@ function ParsedLine:getNextNonWhitespacePositionAfter(_stringPosition)
              :getSubstringPositionList(Whitespace.IDENTIFIER)
              :getNextUncontainedStringPositionAfter(_stringPosition)
 
-end
-
----
--- @deprecated
---
-function ParsedLine:getNextNonWhitespacePositionTo(_stringPosition)
-  return self:getNextNonWhitespacePositionAfter(_stringPosition)
 end
 
 ---

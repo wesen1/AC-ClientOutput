@@ -102,13 +102,13 @@ function List:getNextUncontainedStringPositionAfter(_stringPosition)
 
   until (substringPosition == nil)
 
-  return nextPosition
+  return nextPosition:getEndPosition() + 1
 
 end
 
 ---
 -- Returns the first previous string position that is not contained in any substring position before a given string position.
--- The result can be smaller than 0.
+-- The result can be smaller than 1.
 --
 -- @tparam int _stringPosition The string position
 --
