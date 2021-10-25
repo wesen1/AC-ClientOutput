@@ -126,13 +126,14 @@ end
 --
 function StringSplitter:getParsedParentClientOutputString()
 
+  local lineSplitCharacters = self.parentClientOutputString:getConfiguration():getLineSplitCharacters()
   if (not self.parsedString or
-      self.parsedString:getLineSplitCharacters() ~= self.parentClientOutputString:getLineSplitCharacters() or
+      self.parsedString:getLineSplitCharacters() ~= lineSplitCharacters or
       self.parsedString:getString() ~= self.parentClientOutputString:getString()) then
 
     -- The cached parsed string is not up to date, reparse the parent ClientOutputString
     self.parser:reset()
-    self.parser:setLineSplitCharacters(self.parentClientOutputString:getLineSplitCharacters())
+    self.parser:setLineSplitCharacters(lineSplitCharacters)
     self.parsedString = self.parser:parse(self.parentClientOutputString:getString())
 
   end
