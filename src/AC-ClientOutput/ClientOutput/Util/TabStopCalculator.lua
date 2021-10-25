@@ -5,12 +5,14 @@
 -- @license MIT
 --
 
+local Object = require "classic"
+
 ---
 -- Provides methods to calculate tab stop positions and distances to tab stops.
 --
 -- @type TabStopCalculator
 --
-local TabStopCalculator = {}
+local TabStopCalculator = Object:extend()
 
 
 ---
@@ -25,17 +27,11 @@ TabStopCalculator.tabWidth = nil
 
 ---
 -- TabStopCalculator constructor.
--- This is the __call metamethod.
 --
 -- @tparam int _tabWidth The width of one tab in pixels
 --
--- @treturn TabStopCalculator The TabStopCalculator instance
---
-function TabStopCalculator:__construct(_tabWidth)
-  local instance = setmetatable({}, {__index = TabStopCalculator})
-  instance.tabWidth = _tabWidth
-
-  return instance
+function TabStopCalculator:new(_tabWidth)
+  self.tabWidth = _tabWidth
 end
 
 
@@ -96,10 +92,6 @@ end
 function TabStopCalculator:convertTabNumberToPosition(_tabNumber)
   return _tabNumber * self.tabWidth
 end
-
-
--- When TabStopCalculator() is called, call the __construct method
-setmetatable(TabStopCalculator, {__call = TabStopCalculator.__construct})
 
 
 return TabStopCalculator

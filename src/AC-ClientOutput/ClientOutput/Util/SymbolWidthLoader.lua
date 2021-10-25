@@ -5,12 +5,14 @@
 -- @license MIT
 --
 
+local Object = require "classic"
+
 ---
 -- Handles loading of symbol widths from one of the font tables
 --
 -- @type SymbolWidthLoader
 --
-local SymbolWidthLoader = {}
+local SymbolWidthLoader = Object:extend()
 
 
 ---
@@ -25,17 +27,11 @@ SymbolWidthLoader.fontConfig = nil
 
 ---
 -- SymbolWidthLoader constructor.
--- This is the __call metamethod.
 --
 -- @tparam string _fontConfigFileName The font config file name
 --
--- @treturn SymbolWidthLoader The SymbolWidthLoader instance
---
-function SymbolWidthLoader:__construct(_fontConfigFileName)
-  local instance = setmetatable({}, {__index = SymbolWidthLoader})
-  instance.fontConfig = require("AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName)
-
-  return instance
+function SymbolWidthLoader:new(_fontConfigFileName)
+  self.fontConfig = require("AC-ClientOutput/ClientOutput/FontConfig/" .. _fontConfigFileName)
 end
 
 
@@ -58,10 +54,6 @@ function SymbolWidthLoader:getCharacterWidth(_character)
   end
 
 end
-
-
--- When SymbolWidthLoader() is called, call the __construct method
-setmetatable(SymbolWidthLoader, {__call = SymbolWidthLoader.__construct})
 
 
 return SymbolWidthLoader
