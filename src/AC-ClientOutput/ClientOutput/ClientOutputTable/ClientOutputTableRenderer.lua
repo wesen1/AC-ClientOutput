@@ -75,7 +75,7 @@ end
 function ClientOutputTableRenderer:calculateNumbersOfTabsPerColumn()
 
   local numberOfColumns = self.parentClientOutputTable:getNumberOfColumns()
-  local remainingNumberOfTabs = self.parentClientOutputTable:getMaximumNumberOfTabs()
+  local remainingNumberOfTabs = self.parentClientOutputTable:getConfiguration():getMaximumNumberOfTabs()
 
   self.numbersOfTabsPerColumn = {}
   for x = 1, numberOfColumns, 1 do
@@ -140,7 +140,7 @@ function ClientOutputTableRenderer:convertSubTablesToRows(_padTabNumber)
     outputTable[y] = {}
     for x, tableField in ipairs(tableRow) do
 
-      tableField:changeMaximumNumberOfTabs(self.numbersOfTabsPerColumn[x])
+      tableField:getConfiguration():changeMaximumNumberOfTabs(self.numbersOfTabsPerColumn[x])
       if (padTabNumberIsDefined or x < numberOfColumns) then
         outputTable[y][x] = tableField:getOutputRowsPaddedWithTabs(self.numbersOfTabsPerColumn[x])
       else

@@ -3,6 +3,7 @@
 -- @copyright 2019 wesen <wesen-ac@web.de>
 -- @release 0.1
 -- @license MIT
+--
 
 local BaseClientOutput = require("AC-ClientOutput/ClientOutput/BaseClientOutput")
 local ClientOutputTableRenderer = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableRenderer")
@@ -29,13 +30,6 @@ ClientOutputTable.rows = nil
 --
 ClientOutputTable.renderer = nil
 
----
--- The output configuration for specific groups of the table (rows, columns and fields)
---
--- @tfield mixed[][] groupConfigurations
---
-ClientOutputTable.groupConfigurations = nil
-
 
 -- Metamethods
 
@@ -45,13 +39,12 @@ ClientOutputTable.groupConfigurations = nil
 --
 -- @tparam SymbolWidthLoader _symbolWidthLoader The symbol width loader
 -- @tparam TabStopCalculator _tabStopCalculator The tab stop calculator
--- @tparam int _maximumLineWidth The maximum line width
+-- @tparam ClientOutputTableConfiguration _configuration The configuration
 --
 -- @treturn ClientOutputTable The ClientOutputTable instance
 --
-function ClientOutputTable:__construct(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
-
-  local instance = BaseClientOutput(_symbolWidthLoader, _tabStopCalculator, _maximumLineWidth)
+function ClientOutputTable:__construct(_symbolWidthLoader, _tabStopCalculator, _configuration)
+  local instance = BaseClientOutput(_configuration)
   setmetatable(instance, {__index = ClientOutputTable})
 
   instance.renderer = ClientOutputTableRenderer(instance)
@@ -76,31 +69,6 @@ end
 -- Public Methods
 
 ---
--- Configures this ClientOutputTable.
---
--- @tparam table _configuration The configuration
---
-function ClientOutputTable:configure(_configuration)
-
-  BaseClientOutput.configure(self, _configuration)
-
-  -- Parse the column, row and field configs
-  self.groupConfigurations = {}
-  if (_configuration["rows"]) then
-    self.groupConfigurations["rows"] = _configuration["rows"]
-  end
-
-  if (_configuration["columns"]) then
-    self.groupConfigurations["columns"] = _configuration["columns"]
-  end
-
-  if (_configuration["fields"]) then
-    self.groupConfigurations["fields"] = _configuration["fields"]
-  end
-
-end
-
----
 -- Parses a table.
 -- The table must be in the format { [y] = { rowFields } }, while a row field may contain a sub table.
 -- Every row must have the same number of columns.
@@ -117,19 +85,25 @@ function ClientOutputTable:parse(_table)
     self.rows[y] = {}
 
     if (type(row) ~= "table") then
-      self.rows[y][1] = ClientOutputFactory.getInstance():getClientOutputString(row)
-      self.rows[y][1]:configure(self:getConfigurationForField(y, 1))
+      self.rows[y][1] = ClientOutputFactory.getInstance():getClientOutputString(
+        row,
+        self.configuration:getConfigurationForField(y, 1, false)
+      )
     else
 
       for x, field in ipairs(row) do
 
         if (type(field) == "table") then
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(field)
+          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputTable(
+            field,
+            self.configuration:getConfigurationForField(y, x, true)
+          )
         else
-          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(tostring(field))
+          self.rows[y][x] = ClientOutputFactory.getInstance():getClientOutputString(
+            tostring(field),
+            self.configuration:getConfigurationForField(y, x, false)
+          )
         end
-
-        self.rows[y][x]:configure(self:getConfigurationForField(y, x))
 
       end
 
@@ -256,69 +230,6 @@ function ClientOutputTable:getNumberOfColumns()
     return 0
   else
     return #self.rows[1]
-  end
-
-end
-
-
--- Private Methods
-
----
--- Returns the client output configuration for a specific table field.
---
--- @tparam int _y The y coordinate of the field
--- @tparam int _x The x coordinate of the field
---
--- @treturn table The client output configuration for the field
---
-function ClientOutputTable:getConfigurationForField(_y, _x)
-
-  -- Create a configuration with this ClientOutputTable's own configuration
-  local configuration = {
-    newLineIndent = self.newLineIndent,
-    lineSplitCharacters = self.lineSplitCharacters
-  }
-
-  -- Check group configurations
-  local allowedGroupValueNames = { "newLineIndent", "lineSplitCharacters" }
-
-  if (self.groupConfigurations["rows"] and self.groupConfigurations["rows"][_y]) then
-    self:addGroupConfiguration(
-      configuration, self.groupConfigurations["rows"][_y], allowedGroupValueNames
-    )
-  end
-
-  if (self.groupConfigurations["columns"] and self.groupConfigurations["columns"][_x]) then
-    self:addGroupConfiguration(
-      configuration, self.groupConfigurations["columns"][_x], allowedGroupValueNames
-    )
-  end
-
-  if (self.groupConfigurations["fields"] and
-      self.groupConfigurations["fields"][_y] and self.groupConfigurations["fields"][_y][_x]
-  ) then
-    self:addGroupConfiguration(
-      configuration, self.groupConfigurations["fields"][_y][_x], allowedGroupValueNames
-    )
-  end
-
-  return configuration
-
-end
-
----
--- Adds the values of a group configuration to a configuration object.
---
--- @tparam table _configuration The configuration object
--- @tparam table _groupConfiguration The group configuration
--- @tparam string[] _valueNames The names of the values to copy into the configuration object
---
-function ClientOutputTable:addGroupConfiguration(_configuration, _groupConfiguration, _valueNames)
-
-  for _, valueName in ipairs(_valueNames) do
-    if (_groupConfiguration[valueName] ~= nil) then
-      _configuration[valueName] = _groupConfiguration[valueName]
-    end
   end
 
 end

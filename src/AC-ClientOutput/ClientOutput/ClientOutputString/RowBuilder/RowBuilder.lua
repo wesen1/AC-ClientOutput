@@ -206,7 +206,7 @@ end
 --
 function RowBuilder:reset()
 
-  self.maximumLineWidth = self.parentClientOutputString:getMaximumLineWidth()
+  self.maximumLineWidth = self.parentClientOutputString:getConfiguration():getMaximumLineWidth()
   self.currentRowStartPosition = 1
   self.stringWidthCalculator:reset()
   self.widthCacher:reset()
@@ -232,7 +232,7 @@ function RowBuilder:extractNextRowString(_rowEndPosition, _isFirstRow,  _padTabN
     rowString = ""
   else
 
-    rowString = self.parentClientOutputString:getNewLineIndent()
+    rowString = self.parentClientOutputString:getConfiguration():getNewLineIndent()
     local closestColor = self.parsedString:getLastColorBefore(_rowEndPosition)
     if (closestColor ~= nil) then
       rowString = rowString .. closestColor
@@ -268,7 +268,7 @@ end
 --
 function RowBuilder:initializeAdditionalRowsIndent()
 
-  local newLineIndent = self.parentClientOutputString:getNewLineIndent()
+  local newLineIndent = self.parentClientOutputString:getConfiguration():getNewLineIndent()
   local newLineIndentWidth = self.stringWidthCalculator:getStringWidth(newLineIndent)
   self.stringWidthCalculator:reset()
 

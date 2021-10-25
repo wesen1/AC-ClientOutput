@@ -5,6 +5,8 @@
 -- @license MIT
 --
 
+local ClientOutputConfiguration = require("AC-ClientOutput/ClientOutput/ClientOutputConfiguration")
+local ClientOutputTableConfiguration = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableConfiguration")
 local ClientOutputString = require("AC-ClientOutput/ClientOutput/ClientOutputString/ClientOutputString")
 local ClientOutputTable = require("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTable")
 local SymbolWidthLoader = require("AC-ClientOutput/ClientOutput/Util/SymbolWidthLoader")
@@ -40,17 +42,10 @@ ClientOutputFactory.symbolWidthLoader = nil
 ClientOutputFactory.tabStopCalculator = nil
 
 ---
--- The maximum line width in 3x pixels
---
--- @tfield int maximumLineWidth
---
-ClientOutputFactory.maximumLineWidth = 3900
-
----
 -- The default configuration for ClientOutputString's and ClientOutputTable's
 -- These values can be overwritten by the config section in each template
 --
--- @tfield mixed[] defaultConfiguration
+-- @tfield ClientOutputConfiguration defaultConfiguration
 --
 ClientOutputFactory.defaultConfiguration = nil
 
@@ -64,14 +59,22 @@ ClientOutputFactory.defaultConfiguration = nil
 -- @treturn ClientOutputFactory The ClientOutputFactory instance
 --
 function ClientOutputFactory:__construct()
+
   local instance = setmetatable({}, {__index = ClientOutputFactory})
+
+  -- Select the default font config
   instance:changeFontConfig("FontDefault")
-  instance.defaultConfiguration = {
+
+  -- Set up the default configuration
+  instance.defaultConfiguration = ClientOutputConfiguration(instance.tabStopCalculator)
+  instance.defaultConfiguration:parse({
+    maximumLineWidth = 3900,
     newLineIndent = "",
     lineSplitCharacters = " "
-  }
+  }, true)
 
   return instance
+
 end
 
 
@@ -84,13 +87,11 @@ end
 -- @treturn ClientOutputFactory The ClientOutputFactory instance
 --
 function ClientOutputFactory.getInstance()
-
   if (ClientOutputFactory.instance == nil) then
     ClientOutputFactory.instance = ClientOutputFactory()
   end
 
   return ClientOutputFactory.instance
-
 end
 
 ---
@@ -100,20 +101,12 @@ end
 --
 function ClientOutputFactory:configure(_configuration)
 
-  if (_configuration["fontConfigFileName"] ~= nil) then
-    self:changeFontConfig(_configuration["fontConfigFileName"])
-  end
+  if (type(_configuration) == "table") then
+    if (_configuration["fontConfigFileName"] ~= nil) then
+      self:changeFontConfig(_configuration["fontConfigFileName"])
+    end
 
-  if (_configuration["maximumLineWidth"] ~= nil) then
-    self.maximumLineWidth = tonumber(_configuration["maximumLineWidth"])
-  end
-
-  if (_configuration["newLineIndent"] ~= nil) then
-    self.defaultConfiguration["newLineIndent"] = _configuration["newLineIndent"]
-  end
-
-  if (_configuration["lineSplitCharacters"] ~= nil) then
-    self.defaultConfiguration["lineSplitCharacters"] = _configuration["lineSplitCharacters"]
+    self.defaultConfiguration:parse(_configuration, true)
   end
 
 end
@@ -129,15 +122,8 @@ end
 --
 function ClientOutputFactory:getClientOutputString(_string, _configuration)
 
-  local clientOutputString = ClientOutputString(
-    self.symbolWidthLoader, self.tabStopCalculator, self.maximumLineWidth
-  )
-
-  clientOutputString:configure(self.defaultConfiguration)
-  if (_configuration) then
-    clientOutputString:configure(_configuration)
-  end
-
+  local configuration = self:generateClientOutputConfiguration(ClientOutputConfiguration, _configuration)
+  local clientOutputString = ClientOutputString(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputString:parse(_string)
 
   return clientOutputString
@@ -154,15 +140,8 @@ end
 --
 function ClientOutputFactory:getClientOutputTable(_table, _configuration)
 
-  local clientOutputTable = ClientOutputTable(
-    self.symbolWidthLoader, self.tabStopCalculator, self.maximumLineWidth
-  )
-
-  clientOutputTable:configure(self.defaultConfiguration)
-  if (_configuration) then
-    clientOutputTable:configure(_configuration)
-  end
-
+  local configuration = self:generateClientOutputConfiguration(ClientOutputTableConfiguration, _configuration)
+  local clientOutputTable = ClientOutputTable(self.symbolWidthLoader, self.tabStopCalculator, configuration)
   clientOutputTable:parse(_table)
 
   return clientOutputTable
@@ -180,6 +159,32 @@ end
 function ClientOutputFactory:changeFontConfig(_fontConfigFileName)
   self.symbolWidthLoader = SymbolWidthLoader(_fontConfigFileName)
   self.tabStopCalculator = TabStopCalculator(self.symbolWidthLoader:getCharacterWidth("\t"))
+end
+
+---
+-- Generates and returns a ClientOutputConfiguration instance.
+--
+-- @tparam ClientOutputConfiguration _configurationClass The configuration class type to return an instance of
+-- @tparam ClientOutputConfiguration|table _configuration The custom configuration to add
+--
+-- @treturn ClientOutputConfiguration The generated ClientOutputConfiguration instance
+--
+function ClientOutputFactory:generateClientOutputConfiguration(_configurationClass, _configuration)
+
+  if (type(_configuration) == "table" and type(_configuration.is) == "function" and _configuration.is(_configurationClass)) then
+    -- The given configuration already is a ClientOutputConfiguration instance
+    return _configuration
+  end
+
+  -- Create the ClientOutputConfiguration instance for the ClientOutputString
+  local configuration = _configurationClass(self.tabStopCalculator)
+  configuration:copyClientOutputConfiguration(self.defaultConfiguration)
+  if (type(_configuration) == "table") then
+    configuration:parse(_configuration)
+  end
+
+  return configuration
+
 end
 
 
