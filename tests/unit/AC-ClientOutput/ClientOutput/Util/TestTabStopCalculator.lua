@@ -5,14 +5,14 @@
 -- @license MIT
 --
 
-local TestCase = require("TestFrameWork/TestCase")
+local TestCase = require "wLuaUnit.TestCase"
 
 ---
 -- Checks that the TabStopCalculator class works as expected.
 --
 -- @type TestTabStopCalculator
 --
-local TestTabStopCalculator = {}
+local TestTabStopCalculator = TestCase:extend()
 
 
 ---
@@ -33,7 +33,7 @@ function TestTabStopCalculator:testCanCalculateNumberOfPassedTabStops()
 
     local tabStopCalculator = TabStopCalculator(testValueSet["tabWidth"])
 
-    self.assertEquals(
+    self:assertEquals(
       tabStopCalculator:getNumberOfPassedTabStops(testValueSet["textPixelPosition"]),
       testValueSet["expectedNumberOfPassedTabs"]
     )
@@ -80,7 +80,7 @@ function TestTabStopCalculator:testCanGetNumberOfTabsToTabStop()
     local textPixelPosition = testValueSet["textPixelPosition"]
     local targetTabStopNumber = testValueSet["targetTabStopNumber"]
 
-    self.assertEquals(
+    self:assertEquals(
       tabStopCalculator:getNumberOfTabsToTabStop(textPixelPosition, targetTabStopNumber),
       testValueSet["expectedNumberOfTabs"]
     )
@@ -165,7 +165,7 @@ function TestTabStopCalculator:testCanGetNextTabStopNumber()
 
     local tabStopCalculator = TabStopCalculator(testValueSet["tabWidth"])
 
-    self.assertEquals(
+    self:assertEquals(
       tabStopCalculator:getNextTabStopNumber(testValueSet["textPixelPosition"]),
       testValueSet["expectedTabStopNumber"]
     )
@@ -212,7 +212,7 @@ function TestTabStopCalculator:testCanGetNextTabStopPosition()
 
     local tabStopCalculator = TabStopCalculator(testValueSet["tabWidth"])
 
-    self.assertEquals(
+    self:assertEquals(
       tabStopCalculator:getNextTabStopPosition(testValueSet["textPixelPosition"]),
       testValueSet["expectedTabStopPosition"]
     )
@@ -258,7 +258,7 @@ function TestTabStopCalculator:testCanConvertTabNumberToPosition()
 
     local tabStopCalculator = TabStopCalculator(testValueSet["tabWidth"])
 
-    self.assertEquals(
+    self:assertEquals(
       tabStopCalculator:convertTabNumberToPosition(testValueSet["tabNumber"]),
       testValueSet["expectedPosition"]
     )
@@ -285,10 +285,6 @@ function TestTabStopCalculator:canConvertTabNumberToPositionProvider()
   }
 
 end
-
-
--- TestTabStopCalculator inherits methods and attributes from TestCase
-setmetatable(TestTabStopCalculator, {__index = TestCase})
 
 
 return TestTabStopCalculator

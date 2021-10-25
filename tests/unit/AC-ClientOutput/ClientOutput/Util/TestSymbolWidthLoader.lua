@@ -5,14 +5,14 @@
 -- @license MIT
 --
 
-local TestCase = require("TestFrameWork/TestCase")
+local TestCase = require "wLuaUnit.TestCase"
 
 ---
 -- Checks that the SymbolWidthLoader class works as expected.
 --
 -- @type TestSymbolWidthLoader
 --
-local TestSymbolWidthLoader = {}
+local TestSymbolWidthLoader = TestCase:extend()
 
 
 ---
@@ -76,7 +76,7 @@ function TestSymbolWidthLoader:testCanGetDefinedCharacterWidth()
     self:mockFontConfig("FontDefault", { [character] = characterWidth, ["default"] = 5 })
 
     local symbolWidthLoader = SymbolWidthLoader("FontDefault")
-    self.assertEquals(symbolWidthLoader:getCharacterWidth(character), characterWidth)
+    self:assertEquals(symbolWidthLoader:getCharacterWidth(character), characterWidth)
 
   end
 
@@ -111,7 +111,7 @@ function TestSymbolWidthLoader:testCanGetUndefinedCharacterWidth()
     self:mockFontConfig("FontDefault", testValueSet["fontConfig"])
 
     local symbolWidthLoader = SymbolWidthLoader("FontDefault")
-    self.assertEquals(symbolWidthLoader:getCharacterWidth(character), testValueSet["expectedWidth"])
+    self:assertEquals(symbolWidthLoader:getCharacterWidth(character), testValueSet["expectedWidth"])
 
   end
 
@@ -151,7 +151,7 @@ function TestSymbolWidthLoader:testCanLoadFontConfig()
 
     -- Check that the SymbolWidthLoader returns the widths of the target font config
     for character, expectedWidth in pairs(testValueSet["testCharacters"]) do
-      self.assertEquals(symbolWidthLoader:getCharacterWidth(character), expectedWidth)
+      self:assertEquals(symbolWidthLoader:getCharacterWidth(character), expectedWidth)
     end
 
   end
@@ -230,10 +230,6 @@ function TestSymbolWidthLoader:canLoadFontConfigProvider()
   }
 
 end
-
-
--- TestSymbolWidthLoader inherits methods and attributes from TestCase
-setmetatable(TestSymbolWidthLoader, {__index = TestCase})
 
 
 return TestSymbolWidthLoader

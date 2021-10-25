@@ -5,14 +5,14 @@
 -- @license MIT
 --
 
-local TestCase = require("TestFrameWork/TestCase")
+local TestCase = require "wLuaUnit.TestCase"
 
 ---
 -- Checks that the TableParser works as expected.
 --
 -- @type TestTableParser
 --
-local TestTableParser = {}
+local TestTableParser = TestCase:extend()
 
 
 ---
@@ -28,14 +28,13 @@ TestTableParser.testClassPath = "AC-ClientOutput/ClientOutput/ClientOutputTable/
 -- @tfield string[] dependencyPaths
 --
 TestTableParser.dependencyPaths = {
-
-  ["ClientOutputString"] = { path = "AC-ClientOutput/ClientOutput/ClientOutputString/ClientOutputString" },
-  ["ClientOutputTable"] = { path = "AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTable" },
-  ["ClientOutputTableConfiguration"] = {
+  { id = "ClientOutputString", path = "AC-ClientOutput/ClientOutput/ClientOutputString/ClientOutputString" },
+  { id = "ClientOutputTable", path = "AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTable" },
+  {
+    id = "ClientOutputTableConfiguration",
     path = "AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableConfiguration"
   },
-  ["ParsedTable"] = { path = "AC-ClientOutput/ClientOutput/ClientOutputTable/TableParser/ParsedTable" }
-
+  { id = "ParsedTable", path = "AC-ClientOutput/ClientOutput/ClientOutputTable/TableParser/ParsedTable" }
 }
 
 
@@ -86,7 +85,7 @@ end
 function TestTableParser:setUp()
   TestCase.setUp(self)
 
-  self.configurationMock = self.dependencyMocks["ClientOutputTableConfiguration"]
+  self.configurationMock = self:getMock("AC-ClientOutput/ClientOutput/ClientOutputTable/ClientOutputTableConfiguration")
   self.tableParser = self:createTableParserInstance()
 end
 
@@ -101,8 +100,9 @@ function TestTableParser:testCanParseTable()
     local rawTable = dataSet["rawTable"]
     local expectedClientOutputs = dataSet["expectedClientOutputs"]
 
-    local expectedCalls = self.dependencyMocks["ParsedTable"].__construct
+    local expectedCalls = self.dependencyMocks["ParsedTable"].__call
                                                              :should_be_called()
+                                                             :and_will_return(self.dependencyMocks["ParsedTable"])
 
     self:expectClientOutputCreations(expectedCalls, expectedClientOutputs)
 
@@ -265,12 +265,13 @@ function TestTableParser:expectClientOutputCreation(_expectedCalls, _y, _x, _val
   ):and_then(
 
     -- A ClientOutputString for the field should be created
-    self.dependencyMocks[mockClassName].__construct
+    self.dependencyMocks[mockClassName].__call
                                        :should_be_called_with(
                                          self.symbolWidthLoaderMock,
                                          self.tabStopCalculatorMock,
                                          fieldConfigurationMock
                                        )
+                                       :and_will_return(self.dependencyMocks[mockClassName])
   ):and_then(
 
     -- The expected value should be parsed into the ClientOutputString
@@ -281,10 +282,6 @@ function TestTableParser:expectClientOutputCreation(_expectedCalls, _y, _x, _val
   return self.dependencyMocks[mockClassName]
 
 end
-
-
--- TestTableParser inherits methods and attributes from TestCase
-setmetatable(TestTableParser, {__index = TestCase})
 
 
 return TestTableParser
