@@ -23,13 +23,12 @@ To use this class you must first get the current instance with `ClientOutputFact
 Use `ClientOutputFactory.getInstance():configure(<options>)` to configure the ClientOutputFactory. <br />
 The available options are:
 
-| Option Name         | Description                                           | Allowed values                |
-|---------------------|-------------------------------------------------------|-------------------------------|
-| fontConfigFileName  | The name of the font config to use                    | "FontDefault" (default)       |
-| maximumLineWidth    | The maximum line width in 3x pixels                   | int (Default: 3900)           |
-| newLineIndent       | The default new line indent                           | string (Default: "")          |
-| lineSplitCharacters | The default characters at which lines should be split | lua expression (Default: " ") |
-
+| Option Name         | Description                                           | Allowed values                                   |
+|---------------------|-------------------------------------------------------|--------------------------------------------------|
+| fontConfigFileName  | The name of the font config to use                    | "FontDefault" (default), "FontMono", "FontSerif" |
+| maximumLineWidth    | The maximum line width in 3x pixels                   | int (Default: 3900)                              |
+| newLineIndent       | The default new line indent                           | string (Default: "")                             |
+| lineSplitCharacters | The default characters at which lines should be split | lua expression (Default: " ")                    |
 
 #### Creating a ClientOutputString ####
 
